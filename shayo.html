@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16120F">
+<title>Shayo: your drink don expose you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F1E2; --ink:#16120F; --muted:#57504A; --card:#FFF;
+  --yellow:#F5B301; --red:#C62026; --green:#1E7A45;
+  --yellow-mist:#F6E8C2; --red-mist:#EFD4C8; --blue-mist:#D7DAD6; --green-mist:#D8E0CC;
+  --hair:rgba(22,18,15,.1);
+  --m:20px; --r:20px;
+  --vh:100dvh;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--paper);
+  font-family:Archivo,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2.5px solid var(--yellow);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+#app{position:fixed;inset:0;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+
+/* ── FEED: one roast fills the screen. Swipe up for the next. */
+.feed{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.feed::-webkit-scrollbar{display:none}
+.slide{position:relative;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.shot{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0}
+.shot.tone{display:flex;align-items:center;justify-content:center;padding:12% 8% 34%}
+.shot.tone b{font-weight:900;letter-spacing:-.055em;line-height:.82;opacity:.15;text-transform:uppercase;
+  transform:rotate(-6deg);text-align:center;max-width:100%}
+.veil{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(22,18,15,.62) 0%,rgba(22,18,15,.18) 26%,rgba(22,18,15,.55) 52%,rgba(22,18,15,.93) 82%,rgba(22,18,15,.97) 100%)}
+.slidebody{position:relative;z-index:2;padding:0 var(--m) calc(104px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:13px;min-height:52dvh;justify-content:flex-end}
+.cat{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;font-size:11px;
+  font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+.cat i{width:6px;height:6px;border-radius:99px;background:var(--yellow)}
+.dname{font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.75;margin:0}
+.roast{font-size:clamp(21px,5.6vw,26px);line-height:1.28;font-weight:600;margin:0;white-space:pre-line;
+  text-wrap:pretty;max-width:22ch}
+.slideact{display:flex;gap:10px;align-items:center;margin-top:4px}
+.act{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:99px;
+  background:rgba(246,241,226,.14);backdrop-filter:blur(8px);font-size:15px;font-weight:700}
+.act.on{background:var(--yellow);color:var(--ink)}
+.act.share{background:var(--paper);color:var(--ink)}
+.act svg{width:18px;height:18px}
+.more{align-self:flex-start;font-size:14px;font-weight:600;opacity:.78;text-decoration:underline;
+  text-underline-offset:4px;min-height:44px;display:flex;align-items:center}
+
+/* top bar over the feed */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;padding:calc(10px + env(safe-area-inset-top)) var(--m) 10px;
+  background:linear-gradient(180deg,rgba(22,18,15,.6),transparent)}
+.brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:900;letter-spacing:-.045em;min-height:44px}
+.brand svg{width:22px;height:22px}
+.iconbtn{width:44px;height:44px;border-radius:99px;display:grid;place-items:center;
+  background:rgba(246,241,226,.14);backdrop-filter:blur(8px)}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn.solid{background:var(--card);color:var(--ink)}
+
+/* bottom: one primary job, nothing else */
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));
+  z-index:7;display:flex;gap:8px;width:min(420px,calc(100vw - 32px))}
+.dock .primary{flex:1;min-height:54px;border-radius:99px;background:var(--yellow);color:var(--ink);
+  font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:9px}
+.dock .primary svg{width:19px;height:19px}
+.dock .square{width:54px;height:54px;border-radius:99px;background:rgba(246,241,226,.16);
+  backdrop-filter:blur(10px);display:grid;place-items:center}
+.dock .square svg{width:21px;height:21px}
+
+/* coach, once */
+.coach{position:fixed;inset:0;z-index:9;background:rgba(22,18,15,.72);display:grid;place-items:center;
+  text-align:center;padding:40px}
+.coach div{max-width:22ch}
+.coach b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.coach p{font-size:16px;line-height:1.45;opacity:.82;margin:0 0 26px}
+.thumb{width:44px;height:64px;margin:0 auto 22px;border-radius:99px;border:2px solid var(--yellow);
+  position:relative;overflow:hidden}
+.thumb i{position:absolute;left:50%;bottom:8px;width:10px;height:10px;margin-left:-5px;border-radius:99px;
+  background:var(--yellow);animation:swipe 1.5s ease-in-out infinite}
+@keyframes swipe{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(-38px);opacity:0}}
+
+/* ── light screens */
+.light{background:var(--paper);color:var(--ink);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pad{padding:calc(12px + env(safe-area-inset-top)) var(--m) calc(40px + env(safe-area-inset-bottom));
+  max-width:460px;margin:0 auto;width:100%}
+.head{display:flex;align-items:center;gap:12px;min-height:56px;margin-bottom:8px}
+.head .iconbtn{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(22,18,15,.08)}
+.head h2{flex:1;font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:0 0 10px}
+.lede{font-size:15.5px;line-height:23px;color:var(--muted);margin:0 0 22px;max-width:34ch}
+.search{display:flex;align-items:center;gap:11px;height:52px;border-radius:99px;background:var(--card);
+  padding:0 18px;box-shadow:0 1px 2px rgba(22,18,15,.08);margin-bottom:16px}
+.search svg{width:18px;height:18px;color:var(--muted);flex:none}
+.search input{flex:1;background:none;border:0;outline:0;font-size:16px;height:100%;min-width:0}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 calc(var(--m)*-1) 16px;padding:2px var(--m) 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:38px;padding:0 15px;border-radius:99px;background:var(--card);font-size:14px;
+  font-weight:600;box-shadow:0 1px 2px rgba(22,18,15,.06)}
+.chip.on{background:var(--ink);color:var(--paper)}
+.count{font-size:13px;color:var(--muted);margin:0 0 12px}
+
+/* photo grid: the bottle is the hero */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pcard{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:3/4;display:flex;
+  align-items:flex-end;text-align:left;color:var(--paper)}
+.pcard .shot{position:absolute;inset:0}
+.pcard .shot.tone{padding:14% 10% 30%}
+.pcard .shot.tone b{opacity:.17}
+.pcard .veil{background:linear-gradient(180deg,rgba(22,18,15,.05) 40%,rgba(22,18,15,.86) 100%)}
+.pcard span{position:relative;z-index:2;padding:12px}
+.pcard b{display:block;font-size:15px;font-weight:800;line-height:1.15}
+.pcard em{display:block;font-style:normal;font-size:12.5px;font-weight:600;opacity:.8;margin-top:2px}
+
+/* drink page */
+.hero{position:relative;height:38dvh;min-height:280px;border-radius:0 0 26px 26px;overflow:hidden;
+  display:flex;align-items:flex-end;margin:0 calc(var(--m)*-1) 18px}
+.hero .veil{background:linear-gradient(180deg,rgba(22,18,15,.5) 0%,rgba(22,18,15,.1) 40%,rgba(22,18,15,.9) 100%)}
+.hero span{position:relative;z-index:2;padding:20px;color:var(--paper)}
+.hero h1{margin:0;font-size:34px;line-height:35px}
+.hero em{font-style:normal;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.block{background:var(--card);border-radius:var(--r);padding:2px 18px;margin-top:14px;
+  box-shadow:0 1px 2px rgba(22,18,15,.07)}
+.block section{padding:16px 0}
+.block section+section{border-top:1px solid var(--hair)}
+.block h3{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.block p{margin:0;font-size:15.5px;line-height:23px}
+.quote{font-size:19px;line-height:27px;font-weight:600;white-space:pre-line}
+.scale{margin-top:14px}
+.bar{display:flex;gap:5px}
+.bar i{flex:1;height:8px;border-radius:99px;background:var(--hair)}
+.bar i.on{background:var(--ink)}
+.legend{display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-size:12.5px;
+  font-weight:600;color:var(--muted)}
+.pill{display:inline-block;border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700;
+  letter-spacing:.04em;margin-bottom:9px}
+.v-g{background:var(--green);color:var(--paper)}
+.v-s{background:var(--yellow);color:var(--ink)}
+.v-n{background:var(--red);color:var(--paper)}
+.v-b{background:var(--hair);color:var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:54px;
+  border-radius:99px;background:var(--yellow);color:var(--ink);font-size:16px;font-weight:800;margin-top:12px}
+.btn.quiet{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(22,18,15,.08)}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.btn svg{width:18px;height:18px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shelf{display:flex;gap:10px;overflow-x:auto;margin:0 calc(var(--m)*-1);padding:4px var(--m) 10px;scrollbar-width:none}
+.shelf::-webkit-scrollbar{display:none}
+.shelf .pcard{flex:none;width:130px;aspect-ratio:3/4.2}
+.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--hair);font-size:13px;
+  line-height:20px;color:var(--muted)}
+
+/* ask: two taps, then the answer */
+.ask{display:grid;gap:10px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border-radius:var(--r);
+  padding:15px 17px;min-height:56px;box-shadow:0 1px 2px rgba(22,18,15,.08)}
+.opt b{display:block;font-size:16px;font-weight:700}
+.opt em{display:block;font-style:normal;font-size:13.5px;color:var(--muted);margin-top:2px}
+.opt.on{background:var(--ink);color:var(--paper)}
+.opt.on em{color:rgba(246,241,226,.7)}
+.empty{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 1px 2px rgba(22,18,15,.07)}
+.empty b{display:block;font-size:17px;font-weight:800;margin-bottom:6px}
+.empty p{margin:0;font-size:15px;line-height:22px;color:var(--muted)}
+
+/* gate */
+.gate{position:absolute;inset:0;background:var(--ink);z-index:10;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:var(--m) var(--m) calc(28px + env(safe-area-inset-bottom))}
+.gate .mark{width:64px;height:64px;margin-bottom:auto;margin-top:calc(40px + env(safe-area-inset-top))}
+.gate h1{font-size:38px;line-height:39px;letter-spacing:-.035em;margin-bottom:12px}
+.gate p{font-size:16px;line-height:24px;opacity:.75;margin:0 0 22px;max-width:30ch}
+.gate .btn.quiet{background:rgba(246,241,226,.14);color:var(--paper);box-shadow:none}
+
+/* toast */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));
+  z-index:12;background:var(--paper);color:var(--ink);padding:12px 18px;border-radius:99px;font-size:14px;
+  font-weight:700;box-shadow:0 8px 24px rgba(22,18,15,.3);opacity:0;pointer-events:none;transition:opacity .18s}
+#toast.on{opacity:1}
+#sheet{position:fixed;inset:0;z-index:14}
+.scrim{position:absolute;inset:0;background:rgba(22,18,15,.6);width:100%}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:460px;margin:0 auto;background:var(--paper);
+  color:var(--ink);border-radius:26px 26px 0 0;padding:22px var(--m) calc(22px + env(safe-area-inset-bottom));
+  max-height:88dvh;overflow:auto}
+.sheet h2{font-size:25px;font-weight:800;letter-spacing:-.025em;margin:0 0 8px}
+.sheet img{display:block;width:56%;margin:14px auto;border-radius:16px}
+@media (prefers-reduced-motion:reduce){.thumb i{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status"></div>
+<div id="sheet" hidden></div>
+<script>
+const LIVE_URL = "";
+const BRAND = "shayo";
+const PAPER = "#F6F1E2", INK = "#16120F", YELLOW = "#F5B301";
+
+/* ── Photos.
+   Real photography is the design. Nigerian drink brands have no free-licence product shots, so
+   PHOTOS starts nearly empty and the app falls back to a typographic poster in the drink's own
+   colour. Drop a file in and that drink is photographic: PHOTOS.gulder = "photos/gulder.jpg".
+   Shot list and specs are in PHOTOS.md. */
+const PHOTOS = {};
+/* Paste a free key from pexels.com/api and every drink below pulls a real photograph,
+   cached after the first load. Without a key the app uses the typographic poster. */
+const PEXELS_KEY = "";
+const photoCache = {};
+async function findPhoto(d){
+  if (PHOTOS[d.id]) return PHOTOS[d.id];
+  if (!PEXELS_KEY || photoCache[d.id] !== undefined) return photoCache[d.id] || null;
+  photoCache[d.id] = null;
+  const q = encodeURIComponent((d.query || d.name) + " drink");
+  try {
+    const r = await fetch("https://api.pexels.com/v1/search?per_page=1&orientation=portrait&query=" + q,
+      {headers:{Authorization:PEXELS_KEY}});
+    const j = await r.json();
+    const src = j.photos && j.photos[0] && j.photos[0].src.large;
+    if (src){ photoCache[d.id] = src; store.set("photo:" + d.id, src); repaintPhotos(); }
+  } catch(e){}
+  return photoCache[d.id];
+}
+function repaintPhotos(){ if (state.screen === "feed" || state.screen === "browse") render(); }
+
+const ICON = {
+  cork:'<circle cx="12" cy="12" r="9.2" stroke-dasharray="1.1 1.05" stroke-width="2.4"/><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="3.6"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  share:'<path d="M12 15V3"/><path d="m8 7 4-4 4 4"/><path d="M4 13v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/>',
+  hand:'<path d="M11 10V4.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V3.5a1.5 1.5 0 0 1 3 0V10"/><path d="M17 10.5V6a1.5 1.5 0 0 1 3 0v9a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7v-1a1.5 1.5 0 0 1 3 0"/><path d="M8 14v-3.5a1.5 1.5 0 0 1 3 0V10"/>',
+  martini:'<path d="M8 22h8"/><path d="M12 11v11"/><path d="M19 3H5l7 8z"/>',
+  close:'<path d="M6 6l12 12M18 6L6 18"/>'
+};
+const svg = (n, w = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+
+const STAGES = [
+  {name:"JJC", years:"under a year"},
+  {name:"Learner", years:"1 to 3 years"},
+  {name:"Regular", years:"3 to 7 years"},
+  {name:"Chairman", years:"7 to 15 years"},
+  {name:"Ancestor", years:"15 years and counting"}
+];
+const VENUES = [
+  {val:"club", code:"c", label:"Club", sub:"Sparklers and a DJ that no dey hear request"},
+  {val:"owambe", code:"o", label:"Owambe", sub:"Aso ebi, small chops, MC collecting money"},
+  {val:"joint", code:"j", label:"The joint", sub:"Plastic chair, suya, Premier League"},
+  {val:"lounge", code:"l", label:"Lounge", sub:"Shisha, soft life, pictures for the gram"},
+  {val:"house", code:"h", label:"House party", sub:"Somebody flat and a speaker from Jiji"},
+  {val:"burial", code:"u", label:"Burial", sub:"Canopy, cow, live band from Enugu"},
+  {val:"date", code:"d", label:"Date", sub:"First one or fifth. We no dey count"},
+  {val:"home", code:"m", label:"Home", sub:"Fridge, Netflix, NEPA permitting"}
+];
+const VEN = Object.fromEntries(VENUES.map(v => [v.val, v]));
+const MORNING = [
+  {val:"early", label:"Work by 8am", sub:"Traffic, and a manager that notices"},
+  {val:"service", label:"Church or mosque", sub:"Somebody will smell you"},
+  {val:"flex", label:"Something by 12", sub:"I must look like a human being"},
+  {val:"free", label:"Nothing", sub:"Sleep till 2pm, then Mama Put"}
+];
+
+const D = [
+ {id:"jameson",name:"Jameson",cat:"Whisky",type:"Alte second choice",color:"#3C7A52",s:4,p:2,ven:"crlhdm",t:["smooth"],v:"nsggg",m:["Jameson"],
+  roast:"Jameson is an alte drink.\nIt represents youth and some sort of Political correctness. On its own, it's better off as a very good base to mix cocktails.\n\nIt's also highly tolerable. Regardless of your brand, you can manage Jameson as a second choice.",
+  who:"Creatives with a playlist for every mood and an opinion about every song.",
+  fix:"Ginger ale and lime. Call it Jamo ginger and act like you invented it."},
+ {id:"vodka",name:"Vodka",aka:"Absolut, Belvedere, Pushkin",cat:"Vodka",type:"Going through a phase",color:"#4F6A8A",s:4,p:2,ven:"crlh",t:["smooth"],v:"nsgbb",m:["Vodka","Ciroc","Belvedere","Pushkin"],
+  roast:"Vodka is not a drink.\nIt's a phase in life and every serious drinker has gone through it.\n\nIf you are not going through anything in Life, Vodka will hardly be your 3rd choice. Whether Ciroc or Belvedere or Pushkin.\n\nYou can also use Vodka to remove tough stains on clothes.",
+  who:"People going through something, and people that want you to know they are.",
+  fix:"Zobo, lime and small ginger. Now it's a drink, not a phase."},
+ {id:"beer_any",name:"Any cold beer",cat:"Beer",type:"Sure guy",color:"#243746",s:2,p:1,ven:"crobhjmvuf",t:["bitter","fizzy"],v:"sgggg",m:["beers","beer"],
+  roast:"BEER!\nThere's no alcohol as sure as a beer. Regardless of the brand.\nOnce you discover the beauty that is in beers. Once you let your taste buds adjust to it. Once you ignore what people think your stomach should look like, you'll appreciate the beer.\n\nWhen in doubt, order a beer.",
+  who:"People that came to gist, not to prove anything.",
+  fix:"Cold. Very cold. If the bottle is not sweating, send it back."},
+ {id:"palmwine",name:"Palmwine",cat:"Local",type:"Trust issues",color:"#0B7F9C",s:2,p:1,ven:"ovumj",t:["sweet"],v:"ssggg",m:["Palmwine","palm wine"],
+  roast:"PALMWINE.\nThe only problem with this drink is trust.. as long as you are not sitting under a palm tree with a straw, chances are it will be mixed before it gets to you.\n\nFresh Palmwine is god sent. Sweeet and inviting. Until it ferments inside your stomach and the Highness begin",
+  who:"Villagers at Christmas, and Lagos people that just discovered their roots.",
+  fix:"Fresh, cold, from a tapper you know by name. Drink it early. By evening it's a different drink."},
+ {id:"olmeca",name:"Olmeca",cat:"Tequila",type:"Corolla owner",color:"#5C7A2A",s:4,p:2,ven:"crlh",t:["sweet","smooth"],v:"nsggg",m:["Olmeca","Tequila"],
+  roast:"It's so weird that there are a lot of Tequila brands as some of them even pretend to be premium\n\nOlmeca on the other hand is the \"Corolla\" of Tequila. They aren't expensive but they are just perfect.\n\nThe chocolate flavor is far better than many other attempts at flavored tequila",
+  who:"Practical people that still want to catch fun.",
+  fix:"The chocolate one, chilled, as a shot after food. Dessert with consequences."},
+ {id:"alomo",name:"Alomo Bitters",cat:"Bitters",type:"Conductor",color:"#7A4A7C",s:5,p:1,ven:"jum",t:["bitter"],v:"nnsgg",m:["Alomo"],
+  roast:"ALOMO is for Conductors.\nAlomo is what you drink before you go for an Armed robbery operation.",
+  who:"Conductors. And people that say \"it's herbal\" like that makes it juice.",
+  fix:"Small shot, ice cold, never on empty stomach."},
+ {id:"orijin",name:"Orijin",cat:"Bitters",type:"Front seat passenger",color:"#D9574A",s:3,p:1,ven:"cojhr",t:["bitter","sweet"],v:"nsggg",m:["Orijin Bitters","Orijin"],
+  roast:"ORIJIN.\nORIJIN BITTERS is for Front seat passengers that feel like they are not part of the bus even though you can see them there.\n\nORIJIN is what you drink when the operation was successful",
+  who:"Guys that call everybody \"boss\" and actually tip.",
+  fix:"Over ice with lime. It finally becomes the drink it's been pretending to be."},
+ {id:"remy",name:"Remy Martin",cat:"Cognac",type:"Hennessy with an accent",color:"#5E7183",s:4,p:3,ven:"ldmo",t:["smooth"],v:"nsggg",m:["Remy Martins","Remy Martin","Remy"],
+  roast:"Remy Martins is the Quiet sibling of Henessey..\nthey both face the same problems and almost same components.\n\nOnly that Remy Drinkers are a little more introverted and like to feel like they are mature.\n\nBasically, Remy is Hennessy with an accent.",
+  who:"People that read the label out loud and pronounce it properly.",
+  fix:"Neat, one cube of ice, and a conversation you actually want to have."},
+ {id:"bullet",name:"Bullet",cat:"Ready to drink",type:"Small but deadly",color:"#7C8A1E",s:4,p:1,ven:"cr",t:["sweet"],v:"nnsbb",m:["Bullet"],
+  roast:"BULLET.\nThat's the tweet.\n\nProceed with caution. How can something so small be so dangerous?!!!!!!!",
+  who:"People that say \"I'm not even tired\" at 2am while very tired.",
+  fix:"One can. Never with another drink. Tiny does not mean innocent."},
+ {id:"radler",name:"Star Radler",cat:"Beer",type:"Peer pressure pikin",color:"#CF5E57",s:1,p:1,ven:"fdmbh",t:["sweet","fizzy"],v:"ggbbb",m:["Star Radler","Star raddler","raddler","radler"],
+  roast:"Haha... STAR RADLER.\nThis is for toddlers whose mother was drinking alcohol in her third trimester and the baby got used to it..\n\nThose that drink star raddler are the perfect example of peer pressure. And I believe at every sip, they pray for God's forgiveness.\n\nBecause WTF?!!",
+  who:"Peer pressure. In a bottle.",
+  fix:"Just order Chapman. Same sweetness, more confidence."},
+ {id:"martell",name:"Martell",cat:"Cognac",type:"Doesn't know why",color:"#A0651A",s:4,p:3,ven:"oumv",t:["smooth"],v:"nsggg",m:["Martell"],
+  roast:"Martell.\nTheir brands are usually smooth and pretty good... but it does not have an identity.\n\nA Martell drinker will buy Martell and that's that. No one will go to buy another drink and end up with Martell.\n\nEven people that are drinking it don't know why they are.",
+  who:"Loyal customers that have never explained the loyalty.",
+  fix:"Give it an identity. Ginger ale, lemon, and a name you made up."},
+ {id:"rum",name:"Dark rum",aka:"Dark Sailor, Captain Morgan",cat:"Rum",type:"Best friend's enemy",color:"#6B2E2E",s:4,p:1,ven:"crbh",t:["sweet"],v:"nnsgg",m:["Dark Sailor","Rum"],
+  roast:"RUM.\nHmm. How many of you ever tasted \"Dark Sailor\"? Dark sailor will poison your mind against your best friend. All you want to do is fight or steal his girl. No matter how refined or distilled, Rum is the drink that will be served in Hell Fire.\n\nPerfect only for cocktails.",
+  who:"Sailors, pirates, and your friend that is \"fine\" after the breakup.",
+  fix:"Pineapple, lime and small nutmeg. Now it's a vacation, not a fight."},
+ {id:"red_wine",name:"Red wine",cat:"Wine",type:"Fornicatory nerves",color:"#7A1F35",s:3,p:2,ven:"dmof",t:["smooth","sweet"],v:"sgggg",m:["Red Wine"],
+  roast:"If we are about to get into a fight, offer me Red Wine first.\nIt goes straight to break ur joints, relax ur muscles and then activate ur fornicatory nerves",
+  who:"People that say it goes well with suya. They're not wrong.",
+  fix:"Offer it before the fight. Warm it with cloves and orange if it's harmattan."},
+ {id:"legend",name:"Legend Extra Stout",cat:"Stout",type:"War front soldier",color:"#5F4636",s:4,p:1,ven:"jmuv",t:["bitter"],v:"nnsgg",m:["Legend Extra Stout","Legend"],
+  roast:"When in doubt, order a beer.\nIn the 17th Century, when soldiers are about to go to the war front for really tough battles, they serve them with three drinks.\n\nLEGEND EXTRA STOUT: the 🔥 the bottle is a real ingredient.\n\nThe third drink? Nobody knows. Nobody came back to tell us.",
+  who:"Men that don't talk much and have a favourite chair at the joint.",
+  fix:"Pepper soup, and nobody asking you questions."},
+ {id:"gulder",name:"Gulder",cat:"Beer",type:"Race horse",color:"#7F5F18",s:3,p:1,ven:"ojuvh",t:["bitter"],v:"nsggg",m:["Gulder","Guilder"],
+  roast:"GULDER.\nMeant for race horses.\n\nThe bottle is big because it knows what it's about to do to you. Two bottles in, you are giving the barman marriage advice.",
+  who:"Men that say \"let me see what this one is saying\" and then find out.",
+  fix:"Eat first. Even race horses eat."},
+ {id:"moscato",name:"White wine and Moscato",cat:"Wine",type:"Drunk drunk",color:"#A9791A",s:2,p:2,ven:"mdbf",t:["sweet"],v:"sgggg",m:["White wine","Moscatos","Moscato"],
+  roast:"White wine is easily the most relaxing drink to have at home.\nFew rules around how to drink it. Hardly requires mixing.\n\nAnd the best kind of white wine will be the Moscatos..\n\nOnly problem is as long as it's cold, You will get carried away and next thing you are drunk drunk.",
+  who:"People with a candle, a series and nowhere to be.",
+  fix:"Frozen grapes instead of ice. It stays cold. You still have to count."},
+ {id:"gin",name:"Gin",aka:"Gordon's, Bombay, Tanqueray",cat:"Gin",type:"OG or pretender",color:"#962556",s:4,p:2,ven:"mhldc",t:["bitter"],v:"nsggg",m:["Gin"],
+  roast:"As For Gin.\nIt's largely drank by OGs or people who generally have no idea what to drink but want to be different.",
+  who:"Read the roast again. There are only two types.",
+  fix:"Zobo, cucumber and plenty ice. Now you're different on purpose."},
+ {id:"schnapps",name:"Aromatic Schnapps",aka:"Seaman's",cat:"Local",type:"Drink for the ancestors",color:"#5F5450",s:5,p:2,ven:"ouv",t:["bitter"],v:"nnnsg",m:["Aromatic Schnapps","Schnapps"],
+  roast:"Aromatic Schnapps.\nThere isn't much to write about it because I'm sure a good 60 - 70 percent of you have never tried it.\n\nBut me, I have.. a lot. 😁\n\nAnd I don't have much to say.. It's really a drink for the ancestors and if you touch it, anything you see, you take. Simple.",
+  who:"Traditional rulers, in-laws at introductions, and the ancestors.",
+  fix:"No fix. Some things are not for mixing. Pour small for the ones before you."},
+ {id:"gnt",name:"Gin and tonic",cat:"Gin",type:"Sounds good, feels bad",color:"#34659C",s:3,p:2,ven:"ldfbm",t:["bitter","fizzy"],v:"ssggg",m:["Gin and Tonic"],
+  roast:"\"Gin and Tonic\"\nit sounds good but doesn't feel good. It will allow you take as much as you want..\n\nOnce you drink some water, you are gone - for good.",
+  who:"People that wanted to look sophisticated in the picture.",
+  fix:"Drink the water anyway. That water story is a lie, we checked."},
+ {id:"champagne",name:"Champagne",aka:"Moet, Veuve",cat:"Bubbles",type:"Point prover",color:"#8C6A1F",s:3,p:4,ven:"cldo",t:["fizzy"],v:"nsggg",m:["Champagne"],
+  roast:"The main use of Champagne is to prove a point.\nThat's why you will never see anyone pour it into a flask and sip small small. It has to be in a flute and in public.\n\nAnd you will keep drinking so that more people will see you.. and when they are all gathered, you start vomiting.",
+  who:"Birthday people, new promotions, and one guy that wants his ex to hear about it.",
+  fix:"Small zobo syrup inside. It still proves the point, and tastes better doing it."},
+ {id:"red_label",name:"JW Red Label",cat:"Whisky",type:"First aid box",color:"#8A3A1E",s:4,p:2,ven:"oujv",t:["bitter"],v:"nsgbb",m:["JW Red Label","Red Label"],
+  roast:"JW Red Label used to be this popular.\nThese days it's usually in First Aid boxes for cleaning open injuries.. like TCP.\n\nIt will happen to Henny",
+  who:"Party planners in 2009. Your uncle's cabinet today.",
+  fix:"Mix it with Coke and nobody will ask. Drink it neat and everybody will."},
+
+ {id:"heineken",name:"Heineken",cat:"Beer",type:"Cousin in London",color:"#2F6B3F",s:2,p:2,ven:"crlbhdfo",t:["fizzy","bitter"],v:"sgggg",m:["Heineken"],
+  roast:"HEINEKEN.\nSame beer. Green bottle. Double price.\n\nPeople that drink Heineken in public want you to know they have a cousin in London. At home, they are drinking Star like everybody.",
+  who:"Island people, and mainland people that want to be mistaken for island people.",
+  fix:"Cold fridge, working NEPA. That's all it needs."},
+ {id:"star",name:"Star Lager",cat:"Beer",type:"Family member",color:"#1F3B63",s:2,p:1,ven:"oujmvf",t:["bitter","fizzy"],v:"sgggg",m:["Star Lager","Star"],
+  roast:"STAR.\nStar is not a beer, it's a family member. It has been at every naming ceremony, wedding and burial since before your father had teeth.\n\nNobody has ever been embarrassed holding a Star. Nobody has ever been impressed either.",
+  who:"Uncles, landlords and anybody that starts a sentence with \"in our time\".",
+  fix:"With pepper soup, while arguing about football."},
+ {id:"trophy",name:"Trophy",cat:"Beer",type:"Plastic chair chairman",color:"#C2560F",s:2,p:1,ven:"jmhou",t:["bitter","fizzy"],v:"sgggg",m:["Trophy"],
+  roast:"TROPHY.\nThe beer of men that have a plastic chair with their name on it at the joint.\n\nCheap, loyal and it has never asked you to prove anything. If Trophy was a person, it will lend you money and not tell anybody.",
+  who:"Men watching Premier League at the joint with suya in one hand.",
+  fix:"Suya. That's the fix."},
+ {id:"goldberg",name:"Goldberg",cat:"Beer",type:"Fuji band loyalist",color:"#9A7420",s:2,p:1,ven:"oujm",t:["bitter","fizzy"],v:"sgggg",m:["Goldberg"],
+  roast:"GOLDBERG.\nThis beer loves Yoruba parties more than Yoruba people. Once the fuji band starts, Goldberg opens itself.\n\nBy the 3rd bottle your agbada is heavy and you are spraying money you don't have.",
+  who:"Men in agbada that start dancing before the band even plugs in.",
+  fix:"Cold, with small chops, close to the band."},
+ {id:"hero",name:"Hero",cat:"Beer",type:"My brother my brother",color:"#7A1F35",s:2,p:1,ven:"ojuvm",t:["bitter","fizzy"],v:"sgggg",m:["Hero"],
+  roast:"HERO.\nThe only beer that asks where you're from before you open it.\n\nDrink Hero in Onitsha, nobody sees you. Drink Hero in Lekki, somebody will start speaking Igbo to you. Answer with your chest.",
+  who:"Anybody that calls strangers \"my brother\" at the bar and means it.",
+  fix:"Nkwobi on the side. Anything else is disrespect."},
+ {id:"export33",name:"33 Export",cat:"Beer",type:"Work is finished",color:"#3E6B4F",s:2,p:1,ven:"jmuo",t:["bitter","fizzy"],v:"sgggg",m:["33 Export","33"],
+  roast:"33 EXPORT.\nThe beer of men that have finished raising children and are now just waiting.\n\nNobody orders 33 to impress anybody. You order it because the work has been done and the evening finally belongs to you.",
+  who:"Men that have paid every school fee they will ever pay.",
+  fix:"Cold, in the evening, with nobody disturbing you."},
+ {id:"life",name:"Life Continental",cat:"Beer",type:"Burial dancer",color:"#1E6B5A",s:2,p:1,ven:"ujov",t:["bitter","fizzy"],v:"sgggg",m:["Life Continental","Life"],
+  roast:"LIFE.\nEastern beer with a marketing budget and a live band attached.\n\nEvery Life drinker has danced at somebody's burial like it was their own birthday. In the East that's not an insult. That's a compliment.",
+  who:"People that travel 6 hours for a burial and arrive dancing.",
+  fix:"Cold, at a burial, while the band is still strong."},
+ {id:"tiger",name:"Tiger",cat:"Beer",type:"One extra bottle",color:"#2C4E6E",s:2,p:2,ven:"clhb",t:["fizzy","bitter"],v:"sgggg",m:["Tiger"],
+  roast:"TIGER.\nFor guys that just discovered they can afford one extra bottle.\n\nIt's fine. It's cold. It has no personality and it is not trying to develop one.",
+  who:"People still deciding what their drink is.",
+  fix:"Cold, at the joint, while you decide who you really are."},
+ {id:"flyingfish",name:"Flying Fish",cat:"Beer",type:"Beer in disguise",color:"#3E7E86",s:2,p:2,ven:"bhcld",t:["sweet","fizzy"],v:"ggbbb",m:["Flying Fish"],
+  roast:"FLYING FISH.\nBeer with lemon inside, for people that want to drink without admitting they are drinking.\n\nYou are drinking beer. The lemon is not a costume. We can see you.",
+  who:"People that say \"I'll just have something light\" every single time.",
+  fix:"Very cold, at the beach. That's honestly where it makes sense."},
+ {id:"budweiser",name:"Budweiser",cat:"Beer",type:"The club paid for it",color:"#B3263E",s:2,p:2,ven:"crlb",t:["fizzy"],v:"sggbb",m:["Budweiser"],
+  roast:"BUDWEISER.\nThe beer that came to Nigeria and refused to adjust. It's in the club because the club was paid to put it there.\n\nNobody has ever gone home and said \"that Budweiser was sweet\". Not one person.",
+  who:"People whose DJ said \"one more song\" four hours ago.",
+  fix:"Ice bucket, club table. Just don't call it premium in front of us."},
+ {id:"desperados",name:"Desperados",cat:"Beer",type:"Failed both exams",color:"#6F8430",s:3,p:2,ven:"crbh",t:["sweet","fizzy"],v:"nsgbb",m:["Desperados"],
+  roast:"DESPERADOS.\nBeer that wanted to be tequila and failed both exams.\n\nIt drinks like Fanta and hits like a landlord in January. The name is not a brand, it's a description of the people drinking it.",
+  who:"The friend that orders \"something different\" and regrets it by 1am.",
+  fix:"One bottle, lime inside, then water."},
+ {id:"guinness",name:"Guinness Stout",cat:"Stout",type:"Political analyst",color:"#3A302C",s:3,p:2,ven:"ojuvm",t:["bitter"],v:"nsggg",m:["Guinness"],
+  roast:"GUINNESS.\nYour father said it gives strength. It doesn't. It gives confidence, which is worse.\n\nBy the 3rd bottle, every man at the table is a political analyst and a former footballer.",
+  who:"Fathers, uncles and the cousin that just came back from gym.",
+  fix:"Small blackcurrant and plenty ice. Your uncle will salute you."},
+ {id:"turboking",name:"Turbo King",cat:"Stout",type:"The name is a warning",color:"#4A2E2A",s:4,p:1,ven:"jmuv",t:["sweet","bitter"],v:"nnsgg",m:["Turbo King","Turbo"],
+  roast:"TURBO KING.\nDark, sweet and dangerous, like an aunty that gives you money and gossip at the same time.\n\nRead the name again. Turbo. King. Nobody named this one Small Gentle.",
+  who:"Men that drink slowly and still finish before everybody.",
+  fix:"One bottle, with food. Respect the name."},
+ {id:"williams",name:"Williams Dark Ale",cat:"Stout",type:"Village meeting elder",color:"#4C3A2E",s:4,p:1,ven:"jvuo",t:["sweet","bitter"],v:"nnsgg",m:["Williams Dark Ale","Williams"],
+  roast:"WILLIAMS.\nStout that went to a village meeting and came back speaking proverbs.\n\nFirst sip is sweet like malt. Then you stand up and the ground moves small. That's when you remember it's dark ale, not Malta.",
+  who:"Elders that say \"my son\" before they insult you.",
+  fix:"Slow sipping, plenty food, and don't stand up too fast."},
+ {id:"action",name:"Action Bitters",cat:"Bitters",type:"Something must happen",color:"#6B3F2A",s:5,p:1,ven:"juom",t:["bitter"],v:"nnsgg",m:["Action Bitters","Action"],
+  roast:"ACTION BITTERS.\nThe name is the instruction.\n\nNobody drinks Action Bitters to relax. You drink it because something must happen tonight and you have volunteered to be the one that starts it.",
+  who:"The friend that says \"nothing spoil\" before everything spoils.",
+  fix:"One shot. Then let somebody else start the action."},
+ {id:"odogwu",name:"Odogwu Bitters",cat:"Bitters",type:"Self-appointed odogwu",color:"#5A3A5C",s:5,p:1,ven:"juovm",t:["bitter"],v:"nnsgg",m:["Odogwu Bitters","Odogwu"],
+  roast:"ODOGWU BITTERS.\nEvery man that drinks this believes he is the odogwu. That's the whole marketing and it works perfectly.\n\nTwo shots and you'll be settling a dispute that nobody invited you to settle.",
+  who:"Men that call themselves by their own nickname.",
+  fix:"Small shot, cold, after food. The odogwu still needs to eat."},
+ {id:"ruzu",name:"Ruzu Herbal Bitters",cat:"Bitters",type:"Blood circulation",color:"#4E5C38",s:5,p:1,ven:"jmv",t:["bitter"],v:"nnsgg",m:["Ruzu Herbal Bitters","Ruzu"],
+  roast:"RUZU.\nThey wrote \"herbal\" on the label so your conscience can rest.\n\nUncles drink it for \"blood circulation\". The blood is circulating alright. Straight to the head. Very fast.",
+  who:"Uncles with a bottle in the car door and a reason for it.",
+  fix:"Tiny shot. Herbal is not the same thing as harmless."},
+ {id:"hennessy",name:"Hennessy",cat:"Cognac",type:"Music video extra",color:"#9A5B12",s:4,p:3,ven:"colu",t:["smooth"],v:"nsggg",m:["Hennessy","Henessey","Henny"],
+  roast:"HENNESSY.\nEverybody calls it Henny like it's their cousin. Henny has appeared in more music videos than half of the artists.\n\nRich people drink it. Broke people drink it louder.\n\nJW Red Label also thought it will last forever.",
+  who:"Anybody that has said \"pop another one\" without checking the price.",
+  fix:"Ginger ale and orange peel. Your wallet will thank you."},
+ {id:"courvoisier",name:"Courvoisier",cat:"Cognac",type:"Proving range",color:"#8A5A3C",s:4,p:3,ven:"lodu",t:["smooth"],v:"nsggg",m:["Courvoisier"],
+  roast:"COURVOISIER.\nFor people that got tired of the popular cognac and needed to prove they have range.\n\nIt's genuinely good. Nobody can pronounce it at the bar, so they just point at the bottle and nod.",
+  who:"People that have graduated from Henny and want a certificate for it.",
+  fix:"Neat, small glass, and practise the pronunciation at home first."},
+ {id:"black_label",name:"JW Black Label",cat:"Whisky",type:"High table member",color:"#1F2A36",s:4,p:3,ven:"oulfv",t:["smooth"],v:"nsggg",m:["JW Black Label","Black Label"],
+  roast:"BLACK LABEL.\nRed Label's elder brother that got a government job.\n\nAlways on the high table at the chief's party. You will never be invited to that table. You will just watch it from your plastic chair and pray.",
+  who:"Chiefs, directors and people their age mates call \"sir\".",
+  fix:"On the rocks with coconut water. Sounds wrong. Tastes like promotion."},
+ {id:"chivas",name:"Chivas Regal",cat:"Whisky",type:"Contract signed",color:"#2F4A5C",s:4,p:3,ven:"flou",t:["smooth"],v:"nsggg",m:["Chivas Regal","Chivas"],
+  roast:"CHIVAS.\nThe whisky your oga brings out when the contract has been signed.\n\nSmooth, expensive, and it always arrives with a small speech that nobody asked for.",
+  who:"Men celebrating deals you were not part of.",
+  fix:"Neat or one cube. And endure the speech, the drink is free."},
+ {id:"single_malt",name:"Single malt",aka:"Glenfiddich, Singleton, Macallan",cat:"Whisky",type:"Notes of oak",color:"#6F5B2E",s:4,p:4,ven:"ldfmu",t:["smooth","bitter"],v:"nnsgg",m:["Single malt"],
+  roast:"SINGLE MALT.\nThe drink of men that say \"notes of oak and honey\".\n\nOga, it's alcohol. You are tasting alcohol. Put Coke inside it and somebody's uncle will stand up and leave the party.",
+  who:"Men with a whisky cabinet and a story for every bottle.",
+  fix:"Few drops of water. No ice. No Coke. We beg."},
+ {id:"jack",name:"Jack Daniel's",cat:"Whisky",type:"Leather jacket in Lagos",color:"#3B3B3B",s:4,p:3,ven:"clh",t:["sweet","smooth"],v:"nsggg",m:["Jack Daniel's","Jack"],
+  roast:"JACK DANIEL'S.\nFor people that wear leather jacket in Lagos heat.\n\nTastes like America and a bad decision on a rooftop in VI. Every Jack drinker has a guitar at home they cannot play.",
+  who:"Rock fans in a city of Afrobeats. Very brave people.",
+  fix:"Coke and plenty ice. The ice is not optional in this weather."},
+ {id:"ciroc",name:"Ciroc",cat:"Vodka",type:"Bottle service flex",color:"#2E5B8A",s:4,p:4,ven:"clr",t:["smooth"],v:"nnsgg",m:["Ciroc"],
+  roast:"CIROC.\nVodka that went to a music video and refused to come back.\n\nYou are paying for the bottle and the celebrity that posted it once. Blindfold anybody drinking Ciroc and they will fail the test. Every single time.",
+  who:"People whose table has a sparkler and a photographer on standby.",
+  fix:"If you must, make it long. Soda, lime, plenty ice. Make the bottle last."},
+ {id:"smirnoff_ice",name:"Smirnoff Ice",cat:"Ready to drink",type:"Texting your ex",color:"#5467B8",s:2,p:1,ven:"crbhd",t:["sweet","fizzy"],v:"ggbbb",m:["Smirnoff Ice","Smirnoff"],
+  roast:"SMIRNOFF ICE.\nThe first alcohol everybody lies about. \"It's not even strong.\"\n\nTwo bottles later you're texting your ex \"u up?\" and blaming Smirnoff. It's sweet, it's fizzy and it will betray you like a church friend.",
+  who:"First timers, and grown adults that still text their ex.",
+  fix:"Keep the bottle in the fridge and your phone in your bag."},
+ {id:"x1",name:"Smirnoff X1 Tamarind",cat:"Vodka",type:"I don't really drink",color:"#B5561B",s:4,p:1,ven:"crhoj",t:["sweet"],v:"nsgbb",m:["Smirnoff X1 Tamarind","X1 Tamarind","X1"],
+  roast:"X1 TAMARIND.\nThe drink of people that say \"I don't really drink\" and then finish the bottle before the rice is served.\n\nThe tamarind is just there to distract you from what is happening.",
+  who:"People that \"don't really drink\".",
+  fix:"Soda water and plenty ice. It stretches the bottle and your night."},
+ {id:"local_gin",name:"Local dry gin",aka:"Chelsea, Lord's, Seaman's",cat:"Gin",type:"Built this country",color:"#3F5E4A",s:5,p:1,ven:"vuoj",t:["bitter"],v:"nnsgg",m:["Local dry gin","Chelsea","Lord's"],
+  roast:"LOCAL DRY GIN.\nThis bottle built Nigeria. Every community meeting, every kola, every land dispute, it is somewhere on that table.\n\nCheap, strong and honest about what it is. That's more than we can say for the sachet version.",
+  who:"Elders settling matters that started before you were born.",
+  fix:"Small glass, poured with respect, after the kola has been broken."},
+ {id:"sachet_gin",name:"Sachet gin",cat:"Gin",type:"Mortgage consequences",color:"#4D4D4D",s:5,p:1,ven:"",t:["bitter"],v:"nnnnn",noPick:true,m:["Sachet gin"],
+  roast:"SACHET GIN.\nPure water price. Mortgage consequences.\n\nThe label is lying. The alcohol percentage is lying. Even the person selling it is lying. Only the headache is honest.",
+  who:"People that have made decisions. Many decisions.",
+  fix:"No fix. We love you too much. Buy Chapman."},
+ {id:"squadron",name:"Squadron Rum",cat:"Rum",type:"Military consequences",color:"#5C3A2A",s:5,p:1,ven:"jmv",t:["sweet","bitter"],v:"nnsgg",m:["Squadron Rum","Squadron"],
+  roast:"SQUADRON.\nRum with a military name and military consequences.\n\nIt does not negotiate. One moment you are fine, next moment you are explaining your childhood to somebody you met 20 minutes ago.",
+  who:"Men that drink standing up, near the door, for no reason.",
+  fix:"Cut it with Coke and lime, or it will cut you."},
+ {id:"premium_tequila",name:"Premium tequila",aka:"Don Julio, Casamigos, Clase Azul",cat:"Tequila",type:"Paid for the bottle",color:"#3F5A8A",s:4,p:4,ven:"cld",t:["smooth"],v:"nnsgg",m:["Premium tequila"],
+  roast:"PREMIUM TEQUILA.\nYou paid for the bottle design and the celebrity that posted it once.\n\nInside, it's still tequila. Just with longer grammar when they are describing it to you.",
+  who:"People whose table has sparklers and a photographer.",
+  fix:"Sip it slowly with orange. If you paid that much, at least taste it."},
+ {id:"shots",name:"Tequila shots",cat:"Tequila",type:"Last one, four times",color:"#C8412F",s:5,p:2,ven:"crh",t:["bitter"],v:"nnssb",m:["Tequila shots"],
+  roast:"TEQUILA SHOTS.\nNobody in history has taken only one shot. \"Last one\" is said minimum four times.\n\nSalt. Lime. And a video you'll beg your friends to delete before Monday.",
+  who:"The birthday person, and everybody the birthday person is pointing at.",
+  fix:"Decide your number before the first one. Then turn the rest into margarita."},
+ {id:"four_cousins",name:"Four Cousins",cat:"Wine",type:"Aunty on the table",color:"#C94F63",s:3,p:1,ven:"omvdu",t:["sweet"],v:"ssggb",m:["Four Cousins"],
+  roast:"FOUR COUSINS.\nThe wine your aunty calls \"something light\". It's not light.\n\nIt's the reason your aunty was dancing on the table at the harvest. There's a fifth cousin. It's called headache.",
+  who:"Aunties, first dates on a budget, and anybody that says \"I don't like dry wine\".",
+  fix:"Plenty ice and sliced orange. Now it's actually light."},
+ {id:"carlo_rossi",name:"Carlo Rossi",cat:"Wine",type:"Family investment",color:"#A33A4E",s:3,p:1,ven:"omhv",t:["sweet"],v:"ssggb",m:["Carlo Rossi","Carlo"],
+  roast:"CARLO ROSSI.\nWine that comes in a jug because they know how we drink in this country.\n\nNobody has ever bought Carlo Rossi for two people. It is a family investment with a handle on it.",
+  who:"Anybody hosting more than six people on a budget.",
+  fix:"Over ice with sliced orange and small sprite. Stretch the jug."},
+ {id:"nederburg",name:"Nederburg",cat:"Wine",type:"Started reading labels",color:"#6E3A4A",s:3,p:2,ven:"dfom",t:["smooth"],v:"sgggg",m:["Nederburg"],
+  roast:"NEDERBURG.\nThe wine of people that have started reading labels.\n\nIt's actually good, which is annoying, because whoever brought it will not stop telling you that it's actually good.",
+  who:"The friend that now says \"dry red\" instead of \"red wine\".",
+  fix:"Open it 20 minutes before. Then let them finish their speech."},
+ {id:"andre",name:"Andre",cat:"Bubbles",type:"Champagne's cousin",color:"#A8863C",s:3,p:2,ven:"ohco",t:["fizzy","sweet"],v:"sgggg",m:["Andre"],
+  roast:"ANDRE.\nChampagne's cousin that came to Lagos without papers.\n\nIt pops, it sprays, it does the whole job at a fraction of the price. By morning your head will know the difference. The pictures will not.",
+  who:"Birthday people with real friends and a real budget.",
+  fix:"Very cold, sprayed once for the video, then drunk properly."},
+ {id:"baileys",name:"Baileys",cat:"Liqueur",type:"Asleep in the family photo",color:"#8A6A4F",s:2,p:2,ven:"mdv",t:["sweet","smooth"],v:"sgggg",m:["Baileys"],
+  roast:"BAILEYS.\nChocolate milk that went to university.\n\nAunties drink it at Christmas, swear it's not alcohol, then sleep off in the middle of the family photo.",
+  who:"Aunties at Christmas and anybody that orders dessert as a drink.",
+  fix:"Over ice with cold coffee. Breakfast for people with no meetings."},
+ {id:"amarula",name:"Amarula",cat:"Liqueur",type:"Finally family",color:"#B5651D",s:2,p:2,ven:"mdv",t:["sweet","smooth"],v:"sgggg",m:["Amarula"],
+  roast:"AMARULA.\nThere's an elephant on the bottle for a reason.\n\nEvery Nigerian home has one Amarula hidden from visitors since 2016 and it's still half full. The day they bring it out for you, know that you are now family.",
+  who:"Homeowners that say \"we have juice\" when you visit.",
+  fix:"Blend it with ice and ripe banana. Milkshake with a secret."},
+ {id:"jager",name:"Jägermeister",cat:"Liqueur",type:"Cult member",color:"#355E3B",s:4,p:2,ven:"crh",t:["bitter","sweet"],v:"nnsgg",m:["Jägermeister","Jagermeister","Jager"],
+  roast:"JÄGERMEISTER.\nHerbal medicine that joined a cult. 56 herbs and none of them is for your liver.\n\nIce cold, it's your friend. Warm, it tastes like the agbo your grandmother forced on you.",
+  who:"The friend that arrives by 1am and says \"the night is still young\".",
+  fix:"Straight from the freezer. Never warm. Never."},
+ {id:"campari",name:"Campari",cat:"Liqueur",type:"For the gram",color:"#C8102E",s:3,p:2,ven:"ldfm",t:["bitter"],v:"sgggg",m:["Campari"],
+  roast:"CAMPARI.\nIt's red, it's bitter, it's for pictures.\n\nPeople order it for the gram and drink it with the face of somebody paying NEPA bill. Mix it with orange juice and suddenly everybody likes it.",
+  who:"People with an aesthetic and a ring light.",
+  fix:"Orange juice and soda. Suddenly your face relaxes."},
+ {id:"ogogoro",name:"Ogogoro",aka:"Kai-kai, Sapele water",cat:"Local",type:"Passed the test",color:"#556B2F",s:5,p:1,ven:"vu",t:["bitter"],v:"nnnsg",m:["Ogogoro","Kai-kai"],
+  roast:"OGOGORO.\nThis one is not a drink, it's a test.\n\nIt comes in a recycled Schnapps bottle to confuse the ancestors. If you drink it and you can still pronounce Ogbomosho, you passed.",
+  who:"Elders at the village meeting, and people that lost a bet.",
+  fix:"Lime and honey in a cocktail, and only from somebody you'd trust with your house keys."},
+ {id:"burukutu",name:"Burukutu",cat:"Local",type:"Chewed back",color:"#8A5A2B",s:3,p:1,ven:"vj",t:["bitter"],v:"nsggg",m:["Burukutu"],
+  roast:"BURUKUTU.\nThe North's own palmwine, but with gym membership.\n\nIt's thick like pap. You don't drink burukutu, you chew it. And by evening, it chews you back.",
+  who:"Northern uncles, and southern corpers trying to prove a point.",
+  fix:"Small calabash, slow drinking, food in your stomach first."},
+ {id:"pito",name:"Pito",cat:"Local",type:"Warm calabash",color:"#7A5A3A",s:2,p:1,ven:"vj",t:["bitter","sweet"],v:"ssggg",m:["Pito"],
+  roast:"PITO.\nServed warm, in a calabash, by a woman that will not smile at you and does not need to.\n\nSour, slightly smoky, very low alcohol. Until the sixth calabash, when the maths changes.",
+  who:"Corpers in the Middle Belt discovering that warm drinks can be good.",
+  fix:"Two calabash. Drink it where it's made, not where it's resold."},
+ {id:"paraga",name:"Paraga",cat:"Local",type:"Motor park doctor",color:"#4A5A2A",s:5,p:1,ven:"",t:["bitter"],v:"nnnnn",noPick:true,m:["Paraga"],
+  roast:"PARAGA.\nAgbo that went to motor park and came back with a license.\n\nThey will tell you it cures typhoid, back pain and low sperm count. It cures nothing. It just makes you stop caring about the typhoid.",
+  who:"Motor park regulars at 7am. Before the first trip. Yes.",
+  fix:"No fix. Go to hospital for the typhoid."},
+ {id:"boozy_chapman",name:"Boozy Chapman",cat:"Cocktail",type:"Chapman with a job",color:"#C6502E",s:3,p:2,ven:"ohbdlcr",t:["sweet","fizzy"],v:"sgggg",m:["Boozy Chapman","Chapman"],
+  roast:"BOOZY CHAPMAN.\nChapman that grew up, got a job and started keeping late nights.\n\nIt tastes exactly like your childhood. Your childhood did not have gin inside it. That's the problem.",
+  who:"Grown ups that want to be sweet and dangerous at the same time.",
+  fix:"Gin, Chapman, cucumber, plenty ice. Count your cups."},
+ {id:"mango",name:"Mango margarita",cat:"Cocktail",type:"Planning a trip to Mexico",color:"#C77412",s:3,p:2,ven:"bdlcrh",t:["sweet"],v:"sgggg",m:["Mango Margarita"],
+  roast:"MANGO MARGARITA.\nTequila wearing mango agbada.\n\nVery sweet. Very friendly. Too friendly. By the third glass your waist is doing things your pastor did not approve, and you are planning a trip to Mexico with people you met today.",
+  who:"People that say \"I don't like tequila\" and then have three.",
+  fix:"Real mango, not powder. And count your glasses."},
+ {id:"long_island",name:"Long Island Iced Tea",cat:"Cocktail",type:"There is no tea",color:"#8A6B2E",s:5,p:2,ven:"clrh",t:["sweet"],v:"nnsgg",m:["Long Island Iced Tea","Long Island"],
+  roast:"LONG ISLAND ICED TEA.\nFive different alcohols holding hands and pretending to be tea.\n\nThere is no tea. There was never tea. By the second glass you are explaining your business idea to the DJ and he is nodding.",
+  who:"People that order by price per unit of damage.",
+  fix:"One. Just one. Then move to something you can count."},
+ {id:"chapman",name:"Chapman",cat:"No alcohol",type:"Designated adult",color:"#B83A4B",s:0,p:1,ven:"crolubhjdfmv",t:["sweet","fizzy"],v:"ggggg",m:["Chapman"],
+  roast:"CHAPMAN.\nWhat you order when you're driving, when you're broke, or when your pastor is at the same party.\n\nNo alcohol. Full cucumber. The straw will not survive the night.",
+  who:"The driver. The broke one. The one whose pastor is at the party. You, at 11pm, when you know.",
+  fix:"Frozen zobo cubes. Stronger in flavour, not in alcohol."},
+ {id:"malt",name:"Malt",aka:"Malta Guinness, Amstel Malta",cat:"No alcohol",type:"I'm not drinking tonight",color:"#5A3F2A",s:0,p:1,ven:"oufmvjh",t:["sweet"],v:"ggggg",m:["Malt","Malta Guinness","Amstel Malta"],
+  roast:"MALT.\nThe official drink of \"I'm not drinking tonight\".\n\nSweet, heavy, and it fills your stomach so completely that nobody can pressure you into anything. Malt has saved more reputations than any lawyer in Lagos.",
+  who:"Drivers, pregnant women, and men that have to preach on Sunday.",
+  fix:"Very cold, with peppered meat. It does not need permission from anybody."},
+ {id:"zobo",name:"Zobo",cat:"No alcohol",type:"Aunty's recipe",color:"#8E1E3C",s:0,p:1,ven:"ouhmjfv",t:["sweet"],v:"ggggg",m:["Zobo"],
+  roast:"ZOBO.\nHibiscus, ginger, cloves and pure Nigerian pride.\n\nSomebody's aunty makes it better than every bar in Lekki and sells it for less than a bottle of water. Chilled zobo at an owambe beats any imported juice on that table.",
+  who:"People that know where the good aunty sells.",
+  fix:"Cold, with pineapple and plenty ginger. Also the best mixer on this list."},
+ {id:"kunu",name:"Kunu",cat:"No alcohol",type:"What your body wanted",color:"#B99B6A",s:0,p:1,ven:"mjvfo",t:["sweet"],v:"ggggg",m:["Kunu"],
+  roast:"KUNU.\nThe drink your body actually needs while your mouth is busy asking for beer.\n\nIt tastes like millet and good intentions. Drink it after the night, not during.",
+  who:"Anybody that has survived a bad morning and learned something.",
+  fix:"Cold, the morning after. Your head will send a thank you message."},
+ {id:"chamdor",name:"Chamdor",cat:"No alcohol",type:"Noise without sin",color:"#9A7420",s:0,p:1,ven:"odfmv",t:["sweet","fizzy"],v:"gbbbg",m:["Chamdor"],
+  roast:"CHAMDOR.\nPops like champagne. Zero alcohol. Full pastor approval.\n\nEvery Nigerian wedding buys 400 bottles so church people can feel like they are doing something. The noise without the sin.",
+  who:"Pastors, mothers, drivers, and ancestors that have seen enough.",
+  fix:"Pineapple juice and mint. Wedding energy, Monday morning head."},
+ {id:"water",name:"Water",cat:"No alcohol",type:"Winner",color:"#3F6FA0",s:0,p:1,ven:"",t:[],v:"ggggg",noPick:true,m:["Water"],
+  roast:"WATER.\nEvery drink on this list is afraid of it.\n\nIt has never started a fight, never made anybody vomit at an owambe, never sent a voice note by 3am. Drink it between rounds. Or don't, and let tomorrow teach you.",
+  who:"Winners.",
+  fix:"One glass between every round. That's the whole fix, at every level."}
+];
+
+const BY = Object.fromEntries(D.map(d => [d.id, d]));
+const CATS = ["Beer","Stout","Bitters","Cognac","Whisky","Vodka","Gin","Rum","Tequila","Wine","Bubbles","Liqueur","Local","Cocktail","Ready to drink","No alcohol"];
+
+/* Feed order: the lines that already travelled go first, then everything else.
+   This is the whole hook. Do not sort alphabetically, ever. */
+const OPENERS = ["alomo","vodka","red_wine","radler","heineken","gulder","champagne","orijin","legend","jameson","hennessy","four_cousins","star","palmwine","shots","smirnoff_ice","black_label","trophy","guinness","chapman"];
+
+const VERDICT = {
+  g:{label:"Oya go", cls:"v-g"}, s:{label:"Small small", cls:"v-s"},
+  n:{label:"You never reach", cls:"v-n"}, b:{label:"You don pass am", cls:"v-b"}
+};
+const NOTE = {
+  g:["You fit drink this one.","Within range. Drink like somebody that has work tomorrow.","Light work. Show the young ones how to pace.","You can do this with your eyes closed.","Easy. Pace like an elder."],
+  s:["One glass, then water.","You can manage it. Decide your number before, not after.","Manageable. Tomorrow you remembers last time.","Fine, but nobody should see you doing shots of this.","Your liver has submitted a complaint."],
+  n:["You never reach. This one will send you home in somebody aso ebi.","Wait small. Your friends cannot carry you yet.","Only with food, friends, and a ride already booked.","Even you, calm down. Small glass, long night.","Even ancestors have ancestors."],
+  b:["Go ahead. Everybody starts somewhere.","You don pass this level. Your first bottle is proud of you.","You don pass am. Drink it if somebody else paid.","Na pikin drink. People will ask if everything is okay.","This one is for the corper table."]
+};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shareUrl = h => { let b = LIVE_URL; if (!b){ try { const u = location.href.split("#")[0]; if (/^https?:/.test(u) && !/claudeusercontent|claude\.ai/.test(u)) b = u; } catch(e){} } return b ? b + (h ? "#" + h : "") : ""; };
+const waHref = t => "https://wa.me/?text=" + encodeURIComponent(t);
+const splitRoast = t => { const i = t.indexOf("\n"); return i < 0 ? {head:"", body:t} : {head:t.slice(0, i), body:t.slice(i + 1).replace(/^\n+/, "")}; };
+const shortName = d => d.name.replace(/ (Bitters|Extra Stout|Lager|Herbal Bitters|Dark Ale|Regal|Continental|Iced Tea|Export)$/i, "");
+
+/* The picture. A photo when we have one, otherwise the drink's own colour with its name set big.
+   Deliberately typographic, not an icon: a poster reads as a decision, an icon reads as a gap. */
+function shot(d, cls = "", mode = "big"){
+  const p = PHOTOS[d.id] || photoCache[d.id];
+  if (p) return `<div class="shot ${cls}" style="background-image:url('${p}')"></div>`;
+  const n = shortName(d), longest = n.split(" ").reduce((a, w) => Math.max(a, w.length), 0);
+  /* size to the longest word so nothing ever clips off the edge */
+  const size = mode === "small" ? Math.min(40, 250 / longest)
+             : mode === "mid" ? Math.min(64, 420 / longest)
+             : Math.min(104, 620 / longest);
+  return `<div class="shot tone ${cls}" style="background:${d.color}">`
+    + `<b style="font-size:${size}px">${esc(n)}</b></div>`;
+}
+
+const store = {
+  get ok(){ return !!(typeof window !== "undefined" && window.storage); },
+  async get(k){ if (!this.ok) return null; try { const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; } catch(e){ return null; } },
+  async set(k, v){ if (!this.ok) return false; try { await window.storage.set(k, JSON.stringify(v)); return true; } catch(e){ return false; } }
+};
+
+const state = {
+  screen:"gate", order:[], nameThem:0, stage:null, coach:false,
+  mine:{}, drink:null, q:"", cat:"All", ask:{step:0, venue:null, tmr:null, result:null}, from:"feed"
+};
+
+function buildOrder(){
+  const first = OPENERS.filter(id => BY[id]);
+  const rest = D.map(d => d.id).filter(id => !first.includes(id) && !BY[id].noPick);
+  for (let i = rest.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [rest[i], rest[j]] = [rest[j], rest[i]]; }
+  state.order = first.concat(rest);
+}
+
+/* ── screens */
+function vGate(){
+  return `<div class="gate">
+    <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="${YELLOW}" stroke-width="1.4" stroke-linecap="round">${ICON.cork}</svg>
+    <h1>Your drink don expose you.</h1>
+    <p>73 Nigerian drinks. We roasted every one of them. Are you 18 or older?</p>
+    <button class="btn" data-a="enter">Yes, show me</button>
+    <button class="btn quiet" data-a="under">Not yet</button>
+  </div>`;
+}
+function vUnder(){
+  return `<div class="gate">
+    <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="${YELLOW}" stroke-width="1.4" stroke-linecap="round">${ICON.cork}</svg>
+    <h1>Respect.</h1>
+    <p>Come back when you are 18. Chapman has zero alcohol and it is still the best drink at any Nigerian party.</p>
+  </div>`;
+}
+/* The feed carries the hook. Anything longer than a thumb-length gets cut at a sentence
+   and finished on the drink page, which is also what makes people tap through. */
+function hook(body){
+  const limit = (typeof window !== "undefined" && window.innerHeight < 700) ? 150 : 200;
+  if (body.length <= limit) return {text:body, cut:false};
+  let out = "";
+  for (const part of body.split(/(?<=[.!?])\s+/)){
+    if ((out + part).length > limit && out) break;
+    out += (out ? " " : "") + part;
+  }
+  return {text:out || body.slice(0, limit - 10).trim(), cut:true};
+}
+function slide(id, i){
+  const d = BY[id], {head, body} = splitRoast(d.roast), mine = state.mine[id];
+  const h = hook(body);
+  return `<article class="slide" data-i="${i}" data-id="${id}">
+    ${shot(d)}<div class="veil"></div>
+    <div class="slidebody">
+      <span class="cat"><i></i>${esc(d.cat)}</span>
+      ${head ? `<p class="dname">${esc(head.replace(/[.!]$/, ""))}</p>` : `<p class="dname">${esc(d.name)}</p>`}
+      <p class="roast">${esc(h.text)}</p>
+      <button class="more" data-a="open" data-v="${id}">${h.cut ? "Read the rest" : "Can I handle it, and how to drink am"}</button>
+      <div class="slideact">
+        <button class="act${mine ? " on" : ""}" data-a="mine" data-v="${id}" aria-pressed="${!!mine}">${svg("hand")}${mine ? "Na you" : "Na me"}</button>
+        <button class="act share" data-a="share" data-v="${id}">${svg("share")}Send to somebody</button>
+      </div>
+    </div>
+  </article>`;
+}
+function vFeed(){
+  return `<div class="screen">
+    <div class="topbar">
+      <span class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="${YELLOW}" stroke-width="1.9" stroke-linecap="round">${ICON.cork}</svg>${BRAND}</span>
+      <button class="iconbtn" data-a="browse" aria-label="Search all 73 drinks">${svg("search")}</button>
+    </div>
+    <div class="feed" id="feed">${state.order.map(slide).join("")}</div>
+    <div class="dock">
+      <button class="primary" data-a="ask">${svg("martini")}Wetin I go drink?</button>
+    </div>
+    ${state.coach ? "" : `<button class="coach" data-a="gotit"><div>
+      <div class="thumb"><i></i></div>
+      <b>Swipe up for the next one</b>
+      <p>73 drinks are in here. Yours is one of them.</p>
+      <span class="act on">Got it</span></div></button>`}
+  </div>`;
+}
+function vBrowse(){
+  const q = state.q.trim().toLowerCase();
+  const list = D.filter(d => (q ? true : state.cat === "All" || d.cat === state.cat) &&
+    (!q || (d.name + " " + (d.aka || "") + " " + d.cat + " " + d.type).toLowerCase().includes(q)));
+  const grid = list.length
+    ? `<p class="count">${list.length} ${list.length === 1 ? "drink" : "drinks"}${q ? ", every category" : ""}</p>
+       <div class="pgrid">${list.map(d => `<button class="pcard" data-a="open" data-v="${d.id}">${shot(d, "", "small")}<div class="veil"></div><span><b>${esc(d.name)}</b><em>${esc(d.type)}</em></span></button>`).join("")}</div>`
+    : `<div class="empty"><b>We never roast that one yet.</b><p>Nothing matches "${esc(state.q)}". Try the brand name on the bottle, like Gulder, or a category like gin.</p></div>`;
+  return `<div class="screen light"><div class="pad">
+    <div class="head"><button class="iconbtn" data-a="feed" aria-label="Back to the feed">${svg("back")}</button><h2>All 73 drinks</h2></div>
+    <div class="search">${svg("search", 1.9)}<input id="q" type="search" placeholder="Search a bottle" value="${esc(state.q)}" autocomplete="off" aria-label="Search a bottle"></div>
+    <div class="chips">${["All"].concat(CATS).map(c => `<button class="chip${state.cat === c ? " on" : ""}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+    <div id="grid">${grid}</div>
+  </div></div>`;
+}
+/* Experience does not transfer across a shelf. Ten years of Star tells us nothing about
+   how you handle Ogogoro. So tolerance is measured inside the family you are asking about,
+   and the answer is always relative to what you already drink. */
+const FAMILY = {
+  Beer:"Beer and stout", Stout:"Beer and stout", "Ready to drink":"Beer and stout",
+  Whisky:"Brown spirits", Cognac:"Brown spirits", Rum:"Brown spirits",
+  Vodka:"Clear spirits", Gin:"Clear spirits", Tequila:"Clear spirits",
+  Bitters:"Bitters and local", Local:"Bitters and local",
+  Wine:"Wine and bubbles", Bubbles:"Wine and bubbles", Liqueur:"Wine and bubbles",
+  Cocktail:"Cocktails", "No alcohol":"Soft"
+};
+const fam = d => FAMILY[d.cat] || d.cat;
+function myDrinks(){ return Object.keys(state.mine).filter(id => state.mine[id]).map(id => BY[id]); }
+function baseline(family){
+  const inFam = myDrinks().filter(x => fam(x) === family);
+  if (!inFam.length) return null;
+  return {level:Math.max(...inFam.map(x => x.s)), top:inFam.sort((a, b) => b.s - a.s)[0]};
+}
+function tolerance(d){
+  const f = fam(d), b = baseline(f), all = myDrinks();
+  if (!all.length) return {state:"unknown"};
+  if (!b){
+    const other = all.sort((a, x) => x.s - a.s)[0];
+    return {state:"new", family:f, other};
+  }
+  return {state:"known", family:f, step:d.s - b.level, top:b.top};
+}
+function toleranceBlock(d){
+  const t = tolerance(d), f = fam(d);
+  if (t.state === "unknown")
+    return `<section><h3>Can you handle it?</h3>
+      <p>We cannot say yet. Tap <strong>Na me</strong> on one drink you actually order and we go know your level on this shelf.</p></section>`;
+  if (t.state === "new")
+    return `<section><h3>Can you handle it?</h3>
+      <p><span class="pill v-s">New shelf</span><br>You have never claimed anything from ${esc(f.toLowerCase())}.
+      ${esc(t.other.name)} does not count here. Start with one glass and food inside your stomach.</p>
+      ${scale(d, null)}</section>`;
+  const step = t.step;
+  const v = step <= -2 ? {c:"v-b", l:"Below your level"} : step <= 0 ? {c:"v-g", l:"Within range"}
+          : step === 1 ? {c:"v-s", l:"One step up"} : step === 2 ? {c:"v-s", l:"Two steps up"}
+          : {c:"v-n", l:step + " steps up"};
+  const line = step <= -2 ? `You already handle ${esc(t.top.name)}. This one is small for you.`
+    : step <= 0 ? `Same level as the ${esc(t.top.name)} you claimed. You fit drink am.`
+    : step === 1 ? `One step above your ${esc(t.top.name)}. You go feel am, but you go dey alright.`
+    : step === 2 ? `Two steps above your ${esc(t.top.name)}. Eat first, then count your glasses.`
+    : `${step} steps above your ${esc(t.top.name)}. Not tonight, unless somebody is driving you home.`;
+  return `<section><h3>Can you handle it? On ${esc(f.toLowerCase())}</h3>
+    <p><span class="pill ${v.c}">${v.l}</span><br>${line}</p>
+    ${scale(d, t.top)}</section>`;
+}
+function scale(d, top){
+  const dot = (n, on, label) => `<i class="${on ? "on" : ""}"></i>`;
+  return `<div class="scale" aria-label="Strength ${d.s} of 5">
+    <div class="bar">${[1,2,3,4,5].map(n => `<i class="${n <= d.s ? "on" : ""}"></i>`).join("")}</div>
+    <div class="legend"><span>${esc(d.name)} sits at ${d.s} of 5</span>${top ? `<span>You: ${esc(top.name)} at ${top.s}</span>` : `<span>You: nothing here yet</span>`}</div>
+  </div>`;
+}
+function vDrink(){
+  const d = BY[state.drink], fam = D.filter(x => x.cat === d.cat && x.id !== d.id).slice(0, 8);
+  const {head, body} = splitRoast(d.roast);
+  return `<div class="screen light"><div class="pad">
+    <div class="head"><button class="iconbtn" data-a="${state.from === "browse" ? "browse" : "feed"}" aria-label="Back">${svg("back")}</button></div>
+    <div class="hero">${shot(d, "", "mid")}<div class="veil"></div><span><em>${esc(d.cat)}</em><h1>${esc(d.name)}</h1></span></div>
+    <div class="block">
+      <section><h3>The roast</h3><p class="quote">${esc(head ? head + "\n" + body : body)}</p></section>
+      <section><h3>Who else drinks it</h3><p>${esc(d.who)}</p></section>
+      ${toleranceBlock(d)}
+      <section><h3>How to drink am</h3><p>${esc(d.fix)}</p></section>
+    </div>
+    <div class="row2">
+      <button class="btn" data-a="share" data-v="${d.id}">${svg("share")}Send</button>
+      <button class="btn quiet" data-a="mine" data-v="${d.id}">${svg("hand")}${state.mine[d.id] ? "Na you" : "Na me"}</button>
+    </div>
+    ${fam.length ? `<h3 style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px">Same shelf: ${esc(d.cat.toLowerCase())}</h3>
+      <div class="shelf">${fam.map(x => `<button class="pcard" data-a="open" data-v="${x.id}">${shot(x, "", "small")}<div class="veil"></div><span><b>${esc(shortName(x))}</b></span></button>`).join("")}</div>` : ""}
+    <p class="foot">18+. Nobody is driving tonight. Water between rounds is not weakness.</p>
+  </div></div>`;
+}
+function vAsk(){
+  const a = state.ask;
+  if (a.result) return vAskResult();
+  const q = a.step === 0
+    ? {t:"Where you dey go?", s:"The venue changes the answer more than taste does.", opts:VENUES, act:"venue"}
+    : {t:"Wetin dey tomorrow morning?", s:"This is the question nobody else asks you.", opts:MORNING, act:"tmr"};
+  return `<div class="screen light"><div class="pad">
+    <div class="head"><button class="iconbtn" data-a="${a.step === 0 ? "feed" : "askback"}" aria-label="Back">${svg("back")}</button><h2>${a.step + 1} of 2</h2></div>
+    <h1>${q.t}</h1><p class="lede">${q.s}</p>
+    <div class="ask">${q.opts.map(o => `<button class="opt" data-a="${q.act}" data-v="${o.val}"><b>${esc(o.label)}</b><em>${esc(o.sub)}</em></button>`).join("")}</div>
+  </div></div>`;
+}
+function vAskResult(){
+  const {pick, why, runner, avoid} = state.ask.result, d = pick;
+  const text = `Shayo says I should drink ${d.name} tonight. Apparently I am "${d.type}".${shareUrl("") ? " " + shareUrl("") : ""}`;
+  return `<div class="screen light"><div class="pad">
+    <div class="head"><button class="iconbtn" data-a="feed" aria-label="Back to the feed">${svg("back")}</button><h2>Tonight</h2></div>
+    <div class="hero">${shot(d, "", "mid")}<div class="veil"></div><span><em>Drink this</em><h1>${esc(d.name)}</h1></span></div>
+    <div class="block">
+      <section><h3>Why this one</h3><p>${esc(why)}</p></section>
+      <section><h3>How to drink am</h3><p>${esc(d.fix)}</p></section>
+      <section><h3>If dem no get am</h3><p><strong>${esc(runner.name)}.</strong> ${esc(runner.type)}.</p></section>
+      ${avoid ? `<section><h3>Not tonight</h3><p><strong>${esc(avoid.d.name)}.</strong> ${esc(avoid.reason)}</p></section>` : ""}
+    </div>
+    <a class="btn" href="${waHref(text)}" target="_blank" rel="noopener">${svg("share")}Send to the group chat</a>
+    <button class="btn quiet" data-a="open" data-v="${d.id}">Read the full roast</button>
+    <button class="btn quiet" data-a="ask">Ask again</button>
+    <p class="foot">18+. Nobody is driving tonight. Water between rounds is not weakness.</p>
+  </div></div>`;
+}
+
+/* ── the pick. Two answers in, one drink out. */
+function prescribe(){
+  const a = state.ask, ven = VEN[a.venue];
+  const mine = myDrinks();
+  /* Your level is the strongest thing you have claimed, not a number you typed. */
+  const st = mine.length ? Math.max(0, Math.min(4, Math.round(mine.reduce((m, d) => Math.max(m, d.s), 0)) - 1)) : 2;
+  const early = a.tmr === "early" || a.tmr === "service";
+  const score = d => {
+    if (d.noPick) return -9999;
+    const c = d.v[st];
+    let s = c === "g" ? 30 : c === "s" ? 12 : c === "n" ? -80 : -20;
+    if (d.ven.includes(ven.code)) s += 26;
+    if (early) s -= Math.max(0, d.s - 2) * 12;
+    else if (a.tmr === "flex") s -= Math.max(0, d.s - 3) * 8;
+    else s += d.s * 2;
+    if (a.venue === "joint" && d.cat === "Cocktail") s -= 18;
+    if (d.s === 0 && a.tmr !== "early") s -= 24;
+    return s + Math.random() * 6;
+  };
+  const ranked = D.filter(d => !d.noPick).map(d => ({d, s:score(d)})).sort((x, y) => y.s - x.s);
+  const pick = ranked[0].d, runner = ranked[1].d;
+  const bad = D.filter(d => d.id !== pick.id && d.id !== runner.id).map(d => {
+    let reason = null;
+    if (d.id === "sachet_gin") reason = "Pure water price, mortgage consequences.";
+    else if (d.id === "paraga") reason = "Motor park medicine. Leave it.";
+    else if (d.v[st] === "n") reason = "Above your level, and tonight is not the night to test it.";
+    else if (early && d.s >= 4) reason = a.tmr === "service" ? "The usher will smell it before you sit down." : "You have work by 8am. Tomorrow you is begging us.";
+    if (!reason) return null;
+    return {d, reason, w:(d.ven.includes(ven.code) ? 20 : 0) + Math.random() * 5};
+  }).filter(Boolean).sort((x, y) => y.w - x.w);
+  const why = [];
+  const c = pick.v[st];
+  why.push(c === "g" ? `For a ${STAGES[st].name}, this one is within range.` : c === "s" ? `For a ${STAGES[st].name}, you can handle it if you are counting.` : `It is small for you, but it fits tonight.`);
+  if (pick.ven.includes(ven.code)) why.push(`It fits ${ven.label.toLowerCase()}.`);
+  why.push(a.tmr === "early" ? "You have work by 8am, so this is your ceiling."
+    : a.tmr === "service" ? "You have service in the morning. You will not sleep through the sermon."
+    : a.tmr === "flex" ? "You have something by 12. You will still look human."
+    : "Nothing tomorrow. You fit try something with small power.");
+  state.ask.result = {pick, runner, avoid:bad[0] || null, why:why.join(" ")};
+}
+
+/* ── render */
+function render(){
+  const v = {gate:vGate, under:vUnder, feed:vFeed, browse:vBrowse, drink:vDrink, ask:vAsk}[state.screen];
+  document.getElementById("app").innerHTML = v();
+  if (state.screen === "feed") wireFeed();
+  const inp = document.getElementById("q");
+  if (inp) inp.addEventListener("input", e => {
+    state.q = e.target.value;
+    document.getElementById("grid").innerHTML = vBrowse().split('<div id="grid">')[1].replace(/<\/div><\/div><\/div>$/, "");
+  });
+}
+function go(s){ state.screen = s; render(); }
+function wireFeed(){
+  const feed = document.getElementById("feed");
+  if (!feed) return;
+  feed.addEventListener("scroll", () => {
+    const i = Math.round(feed.scrollTop / feed.clientHeight);
+    if (i !== state.seenIdx){ state.seenIdx = i; }
+  }, {passive:true});
+}
+let toastT;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2200);
+}
+function sheet(html){
+  const s = document.getElementById("sheet");
+  s.hidden = false;
+  s.innerHTML = `<button class="scrim" data-a="closesheet" aria-label="Close"></button><div class="sheet">${html}</div>`;
+}
+function closeSheet(){ const s = document.getElementById("sheet"); s.hidden = true; s.innerHTML = ""; }
+
+/* Na me is the personalisation. Three of them and we name you, which sets every verdict. */
+function nameThem(){
+  const mine = myDrinks();
+  const fams = {};
+  mine.forEach(d => { const f = fam(d); fams[f] = Math.max(fams[f] || 0, d.s); });
+  const named = Object.entries(fams).sort((a, b) => b[1] - a[1]);
+  const top = named[0], gaps = Object.keys(FAMILY).map(c => FAMILY[c])
+    .filter((f, i, a) => a.indexOf(f) === i && !fams[f]);
+  state.named = true; store.set("named", 1);
+  sheet(`<h2>Three na me's. We have seen your shelf.</h2>
+    <p class="lede">Strongest thing you claim is <strong>${esc(mine.sort((a, b) => b.s - a.s)[0].name)}</strong>,
+    which puts you at ${top[1]} of 5 on ${esc(top[0].toLowerCase())}.
+    ${gaps.length ? "You have claimed nothing at all from " + esc(gaps.slice(0, 2).join(" or ").toLowerCase()) + ", so we go warn you there." : ""}</p>
+    <p class="lede">Every &ldquo;can you handle it&rdquo; in here now answers to that, shelf by shelf.</p>
+    <button class="btn" data-a="closesheet">Makes sense</button>`);
+}
+
+const actions = {
+  enter(){ buildOrder(); go("feed"); },
+  under(){ go("under"); },
+  gotit(){ state.coach = true; store.set("coach", 1); document.querySelector(".coach").remove(); },
+  feed(){ go("feed"); },
+  browse(){ state.from = "browse"; go("browse"); },
+  cat(v){ state.cat = v; state.q = ""; render(); },
+  open(id){ state.drink = id; go("drink"); if (typeof window.scrollTo === "function") window.scrollTo(0, 0); },
+  mine(id){
+    state.mine[id] = !state.mine[id];
+    store.set("mine", state.mine);
+    const n = Object.values(state.mine).filter(Boolean).length;
+    render();
+    if (state.mine[id] && n === 3 && !state.named) nameThem();
+    else if (state.mine[id]) toast("Noted. Na you.");
+  },
+  share(id){
+    const d = BY[id], link = shareUrl("d=" + d.id);
+    const text = `${d.name} drinkers, this one na una 😂\n\n${d.roast}\n\nWetin your own drink talk about you?${link ? " " + link : ""}`;
+    if (navigator.share) navigator.share({text}).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast("Copied. Go and expose somebody."), () => window.open(waHref(text), "_blank"));
+    else window.open(waHref(text), "_blank");
+  },
+  ask(){ state.ask = {step:0, venue:null, tmr:null, result:null}; go("ask"); },
+  askback(){ state.ask.step = 0; render(); },
+  venue(v){ state.ask.venue = v; state.ask.step = 1; render(); },
+  tmr(v){ state.ask.tmr = v; prescribe(); render(); },
+
+  closesheet(){ closeSheet(); }
+};
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-a]");
+  if (!el) return;
+  const fn = actions[el.dataset.a];
+  if (fn){ e.preventDefault(); fn(el.dataset.v, el); }
+});
+
+(async function boot(){
+  const [mine, stage, coach] = await Promise.all([store.get("mine"), store.get("named"), store.get("coach")]);
+  if (mine) state.mine = mine;
+  if (stage) state.named = true;
+  if (coach) state.coach = true;
+  try {
+    const h = decodeURIComponent((location.hash || "").slice(1));
+    if (h.startsWith("d=") && BY[h.slice(2)]) state.pending = h.slice(2);
+  } catch(e){}
+  if (state.pending){
+    /* Somebody was sent this roast. Show it, then the feed is one back-tap away. */
+    buildOrder(); state.coach = true; state.drink = state.pending; state.from = "feed"; state.screen = "drink";
+  }
+  render();
+})();
+</script>
+</body>
+</html>
