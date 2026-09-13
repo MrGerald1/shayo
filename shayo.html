@@ -117,12 +117,20 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
   font-weight:600;box-shadow:0 1px 2px rgba(22,18,15,.06);display:inline-flex;align-items:center;gap:7px}
 .chip.on{background:var(--ink);color:var(--paper)}
 .filters{margin:0 0 6px}
-.frow{display:flex;align-items:center;gap:8px}
-.frow>b{flex:none;width:58px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+/* The label sat beside the row in a 58px box and "Strength" needed 75px, so it
+   clipped. Above the row it cannot. */
+.frow>b{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin:2px 0 6px}
+.fbtn{margin-bottom:12px}
+.fbtn .n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;
+  border-radius:99px;background:var(--yellow);color:var(--ink);font-size:12px;font-weight:800}
+.chip.on .n{background:var(--yellow);color:var(--ink)}
 .count{font-size:13px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .count button{font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px;min-height:48px;color:var(--ink)}
 
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* DESIGN.md: two up under 600px, three up above. */
+@media (min-width:600px){.pgrid{grid-template-columns:1fr 1fr 1fr}}
 .pcard{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:3/4;display:flex;
   align-items:flex-end;text-align:left;color:var(--paper)}
 .pcard .shot{position:absolute;inset:0}
@@ -192,6 +200,7 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
 .stext{font-size:clamp(13px,3.4vw,16px);line-height:1.3;font-weight:800;margin:0;white-space:pre-line}
 .sfoot{display:flex;align-items:center;gap:7px;margin-top:7%;font-size:12px;font-weight:800;letter-spacing:.02em}
 .sfoot svg{width:15px;height:15px;flex:none}
+.cardcap{text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);margin:10px 0 0}
 
 .ask{display:grid;gap:10px}
 .opt{display:block;width:100%;text-align:left;background:var(--card);border-radius:var(--r);
@@ -245,6 +254,7 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
   .wide .statuswrap{max-width:360px}
   .wide .block{margin-top:0}
   .wide .col2{grid-column:2;margin-top:0}
+  .screen:not(.wide) .pgrid{grid-template-columns:1fr 1fr}
   /* the shelf bleeds to the screen edge on a phone; inside a column it should not */
   .wide .shelf{margin:0;padding-left:0;padding-right:0}
 }
@@ -262,9 +272,9 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
 /* Shayo. One file on purpose: it has to run from file:// after somebody WhatsApps
    it to you, which rules out ES modules and a build step. */
 
-/* SET THIS BEFORE LAUNCH. Empty means every card that leaves the app leaves without
-   a way back, which is the one thing act one exists to test. */
-const LIVE_URL = "";
+/* Every card that leaves carries this. Empty means a card leaves with no way back,
+   which is the one thing act one exists to measure. */
+const LIVE_URL = "https://shayo.ng";
 const BRAND = "shayo";
 const PAPER = "#F6F1E2", INK = "#16120F", YELLOW = "#F5B301";
 /* BRAND.md copy library, verbatim. Age and safety are two of its four no-joke surfaces. */
@@ -278,7 +288,8 @@ const ICON = {
   hand:'<path d="M11 10V4.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V3.5a1.5 1.5 0 0 1 3 0V10"/><path d="M17 10.5V6a1.5 1.5 0 0 1 3 0v9a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7v-1a1.5 1.5 0 0 1 3 0"/><path d="M8 14v-3.5a1.5 1.5 0 0 1 3 0V10"/>',
   martini:'<path d="M8 22h8"/><path d="M12 11v11"/><path d="M19 3H5l7 8z"/>',
   close:'<path d="M6 6l12 12M18 6L6 18"/>',
-  check:'<path d="M4 12.5l5 5L20 6.5"/>'
+  check:'<path d="M4 12.5l5 5L20 6.5"/>',
+  filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>'
 };
 const svg = (n, w = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 
@@ -737,7 +748,7 @@ function shot(d, cls = "", mode = "big"){
 const state = {
   screen:"gate", order:[], named:false, coach:false, entry:"direct", idx:0,
   mine:{}, seen:{}, log:[], drink:null, pending:null,
-  q:"", cat:"All", f:{strength:null, venue:null, taste:null},
+  q:"", cat:"All", fopen:false, f:{strength:null, venue:null, taste:null},
   ask:{step:0, venue:null, tmr:null, result:null}, from:"feed"
 };
 
@@ -864,7 +875,8 @@ function matches(){
     return true;
   });
 }
-function anyFilter(){ return !!(state.f.strength || state.f.venue || state.f.taste); }
+function anyFilter(){ return activeCount() > 0; }
+function activeCount(){ return [state.f.strength, state.f.venue, state.f.taste].filter(Boolean).length; }
 function gridHTML(){
   const list = matches();
   if (!list.length){
@@ -886,13 +898,14 @@ function vBrowse(){
     <header class="head"><button class="iconbtn" data-a="feed" aria-label="Back to the feed">${svg("back")}</button><h1>Who you wan roast?</h1></header>
     <div class="search">${svg("search", 1.9)}<input id="q" type="search" placeholder="Star, Henny, ogogoro" value="${esc(state.q)}" autocomplete="off" autocapitalize="off" aria-label="Search a bottle"></div>
     <div class="filters">
-      ${frow("Strength", "strength", STRENGTH_BANDS)}
-      ${frow("Where", "venue", VENUES)}
-      ${frow("Taste", "taste", TASTES)}
+      <button class="chip fbtn${anyFilter() ? " on" : ""}" data-a="fopen" aria-expanded="${!!state.fopen}">${svg("filter", 2)}Filters${anyFilter() ? `<span class="n">${activeCount()}</span>` : ""}</button>
+      ${state.fopen ? frow("Strength", "strength", STRENGTH_BANDS) +
+                      frow("Where", "venue", VENUES) +
+                      frow("Taste", "taste", TASTES) : ""}
     </div>
     <div class="chips">${["All"].concat(CATS).map(c => `<button class="chip${state.cat === c ? " on" : ""}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
     <div id="grid">${gridHTML()}</div>
-  </main>${dock(true)}</div>`;
+  </main></div>`;
 }
 
 /* Experience does not transfer across a shelf. Ten years of Star tells us nothing
@@ -960,16 +973,17 @@ function vDrink(){
     <header class="head"><button class="iconbtn" data-a="${state.from === "browse" ? "browse" : "feed"}" aria-label="Back">${svg("back")}</button>
       <h1>${esc(d.name)}</h1>${wide ? `<span class="eyebrow" style="margin:0">${esc(BRAND)}</span>` : ""}</header>
     ${statusCard(d, {live:true})}
+    <p class="cardcap col2">This is the card they get.</p>
+    <div class="row2 col2">
+      <button class="btn" data-a="share" data-v="${d.id}">${svg("share")}Send</button>
+      <button class="btn quiet" data-a="mine" data-v="${d.id}">${svg("hand")}<span>${state.mine[d.id] ? "Na you" : "Na me"}</span></button>
+    </div>
     <div class="block col2">
       <section><h2 class="h3">The roast${list.length > 1 ? ` &middot; ${n + 1} of ${list.length}` : ""}</h3><p class="quote">${esc(head ? head + "\n" + body : body)}</p></section>
       <section><h3>Who else drinks it</h3><p>${esc(d.who)}</p></section>
       <section><h3>Price</h3><p>${esc(PRICE_BANDS[d.p] || "Unbanded")}. A band, not a price: what it costs depends on the bar, the area and the night.</p></section>
       ${toleranceBlock(d)}
       <section><h3>How to drink am</h3><p>${esc(d.fix)}</p></section>
-    </div>
-    <div class="row2 col2">
-      <button class="btn" data-a="share" data-v="${d.id}">${svg("share")}Send</button>
-      <button class="btn quiet" data-a="mine" data-v="${d.id}">${svg("hand")}<span>${state.mine[d.id] ? "Na you" : "Na me"}</span></button>
     </div>
     ${wide ? `<button class="btn quiet col2" data-a="enterfeed">See what your own drink says</button>` : ""}
     ${shelf.length ? `<h3 class="eyebrow col2" style="margin:26px 0 10px">Same shelf: ${esc(d.cat.toLowerCase())}</h3>
@@ -1343,6 +1357,7 @@ const actions = {
     render();
   },
   clearf(){ state.f = {strength:null, venue:null, taste:null}; render(); },
+  fopen(){ state.fopen = !state.fopen; render(); },
   open(id){ openDrink(id, state.from); },
   /* patched call site 1: claiming on slide 14 used to repaint the feed and drop
      you back on slide 1. Nothing but the buttons for that drink changes. */
