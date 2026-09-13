@@ -157,6 +157,34 @@ the premise the whole roadmap rests on has never been tested.
 | W3.5 | Resolve web versus install, and the app store alcohol policies. Done: `DISTRIBUTION.md`, answer is web |
 | W3.6 | The first-hundred plan. Done: `DISTRIBUTION.md`, with a kill rule |
 
+### Act two — SHIPPED, 13 September 2026
+
+Built ahead of its trigger, at Kamso's instruction. The gate in `SCOPE.md` still
+stands and is now a **launch** gate rather than a build gate: act two exists in the
+file, and whether it is shown to users still depends on act one passing its success
+criteria. Nothing about the forward-through measurement changes.
+
+| | Surface | Note |
+|---|---|---|
+| A2.1 | The tab, six tiles | Tap adds one, badge in place. Press and hold for a table round. Hold the badge to remove, which writes a void |
+| A2.2 | The running total | A sum, never a remainder, never changes colour |
+| A2.3 | Settle | Paper till receipt, voids shown struck with their time |
+| A2.4 | The ledger | Month grid, markable dry nights, translation into bundles and fares |
+| A2.5 | The price radar | Three bands, count visible in all, threshold stated |
+| A2.6 | Your shelf | Fold over `choice` and `round` |
+
+Schema now carries `round`, `dry`, `venue` and `price_report` alongside act one's
+types, with `night` and `seq` reinstated. A night rolls at 6am.
+
+**Five defects found while building, all fixed.** The one that mattered: the radar
+counted `price_report` events rather than reporters, so one drinker ordering five
+Stars tripped the five-report threshold alone and published a median sourced from
+one person. That is precisely the failure `SCOPE.md` says kills the Index. Reports
+now dedupe per person. The others: a circular dead `venue` field the receipt and
+radar both depended on, `isDry` counting voided marks so unmarking did nothing, dry
+nights rendering almost identically to cheap nights, and the naira sign falling back
+to a system font on every money screen.
+
 ### Then, gated on evidence
 
 The Shayo Index at its minimum credible unit, 12 SKUs across 3 Lagos areas and 10 venues,

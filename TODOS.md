@@ -54,11 +54,19 @@ weekly card sends above the floor set at launch. Both are logged from event one.
 **Watch out:** bad submissions early make the product look worse than it is, so seeding matters
 more than the ranking algorithm.
 
-### Act two in full: the tab, ledger, price radar, Settle, six tiles, identity layer
-Specified completely in `PLAN.md` and `DESIGN.md`, including the states, the receipt layout, the
-ledger's translation rules and the radar's recruiting empty state. None of that work is wasted.
-Each becomes a view over a log that will already exist.
-**Trigger:** act one passing its success criteria in SCOPE.md.
+### ~~Act two in full~~ BUILT, 13 September 2026
+The tab, the total, Settle, the ledger, the radar and the shelf all ship in
+`shayo.html`. Each is a fold over the same log act one writes, as specified.
+
+**The trigger did not go away, it moved.** `SCOPE.md` gates act two on act one
+passing its success criteria. That is now a gate on *showing* it, not on building
+it. Act two sits behind the receipt icon in the feed's top bar and nothing in act
+one routes into it, so the forward-through measurement is unaffected. Decide
+whether to expose it before launch or after the first hundred.
+
+**Still open in act two:** the price OCR that `SCOPE.md` item 11 describes, which is
+what makes logging one tap from a bar's price list. Without it the first price for
+each drink each night is typed by hand.
 
 ### Selling to brands
 The regulatory opening is real and structural. The relationship is not: Nigerian Breweries buys

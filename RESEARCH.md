@@ -647,3 +647,75 @@ Named gaps, so the next pass does not start cold.
    is a launch blocker.
 5. **Whether the digital gap in the 2026 alcohol policy is deliberate or an oversight.** Decides
    how durable the opening is.
+
+---
+
+## 7. What Nigerians actually drink (added 13 September 2026)
+
+Added after Kamso pointed out that the six default tiles were all lager, and then
+that the correction was still only beer. Both were right.
+
+### Category split, by value
+
+**[V]** Beer roughly 55%, spirits 30%, wine 15%.
+
+### Beer
+
+**[V]** Nigerian Breweries holds over 50% of the beer market, International
+Breweries about 36%, Guinness Nigeria about 12%.
+
+**[V] Hero (International Breweries) is the single most preferred brand**, chosen
+by 20% of consumers. **[V] Trophy** holds about 10% of the market overall and
+**leads the economy segment at 43%**, with **Goldberg at 33%** and **33 Export at
+22%**.
+
+**[V]** Volume growth is in economy lagers as people trade down.
+
+**[!] Star and Gulder are legacy flagships, not the volume story.** The first
+version of the six tiles led with both. Kamso's words: "no one really drinks Star
+or Gulder today."
+
+### Spirits
+
+**[V] Bitters is the largest spirits type in Nigeria: 38% of spirits consumers**
+name it as what they drink most. Whisky and vodka follow at **15% each**, gin at
+**10%**.
+
+That single figure is the most useful thing in this section and a list built from
+global brand rankings would miss it entirely. Alomo, Orijin, Odogwu, Action and
+Ruzu are not a novelty category here, they are the category.
+
+**[V] Smirnoff leads the spirits brand list**, spanning vodka and ready-to-drink.
+**[V] Jack Daniel's** holds its place in nightlife. **[V] Hennessy VS, Martell VS
+and Rémy Martin VSOP** are the cognacs, and cognac is the premium-occasion spirit
+Nigerian social life runs on.
+
+**[V]** NAFDAC's ban on sachets and PET bottles under 200ml, from December 2024,
+constrains economy spirits.
+
+### What the build does with this
+
+`POPULAR` in `shayo.html` ranks about 40 drinks from these figures. The six tiles
+are built by spanning families first (two beer or stout, one bitters, one brown
+spirit, one clear spirit, one wine) and filling by rank, so the grid is never one
+category.
+
+**The six also change with the room**, using the `d.ven` venue codes that every
+drink already carried and that nothing outside the recommender read. A club gets
+Heineken, Smirnoff Ice, Orijin, Hennessy, Ciroc, Andre. A joint gets Hero, Trophy,
+Alomo, Red Label, local gin, Goldberg.
+
+**[?] Not researched:** share within bitters specifically (Alomo vs Orijin vs
+Odogwu), and anything venue-level rather than national. The venue mapping uses the
+`d.ven` codes already in the data, which are authored judgement rather than
+measurement.
+
+### Sources
+
+Euromonitor via secondary summaries; Business Post Nigeria on Trophy's retail lead;
+consumer preference survey figures reported for Hero and for the bitters/whisky/
+vodka/gin split; SagaPoll top spirits brands in Nigeria; Nigerian Breweries and
+International Breweries reported market shares. All secondary. **None of the
+percentage figures here were read off a primary Euromonitor or Nielsen report**,
+which sits behind a paywall, so treat them as directionally right rather than
+citable to a brewer.
