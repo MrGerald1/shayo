@@ -245,6 +245,8 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
   .wide .statuswrap{max-width:360px}
   .wide .block{margin-top:0}
   .wide .col2{grid-column:2;margin-top:0}
+  /* the shelf bleeds to the screen edge on a phone; inside a column it should not */
+  .wide .shelf{margin:0;padding-left:0;padding-right:0}
 }
 @media (prefers-reduced-motion:reduce){
   .thumb i{animation:none}
@@ -265,7 +267,8 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
 const LIVE_URL = "";
 const BRAND = "shayo";
 const PAPER = "#F6F1E2", INK = "#16120F", YELLOW = "#F5B301";
-const SAFETY = "18+. Nobody is driving tonight. Water between rounds is not weakness.";
+/* BRAND.md copy library, verbatim. Age and safety are two of its four no-joke surfaces. */
+const SAFETY = "18+. Drink responsibly. Nobody is driving tonight. Water between rounds is not weakness.";
 
 const ICON = {
   cork:'<circle cx="12" cy="12" r="9.2" stroke-dasharray="1.1 1.05" stroke-width="2.4"/><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="3.6"/>',
@@ -690,7 +693,7 @@ const store = {
     try { localStorage.setItem(this.ns + key, JSON.stringify(value)); return true; }
     catch(e){
       report(new ShayoError("storage.set", key, e),
-        "Storage is full. Your last tap was not saved.");
+        "That did not save. Try again.");
       return false;
     }
   }
@@ -768,7 +771,7 @@ function vUnder(){
   return `<main class="gate">
     <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="${YELLOW}" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">${ICON.cork}</svg>
     <h1>Respect.</h1>
-    <p>Come back when you are 18. Chapman has zero alcohol and it is still the best drink at any Nigerian party.</p>
+    <p>If you are not 18 yet, abeg go and drink Chapman. Zero alcohol, and still the best drink at any Nigerian party.</p>
   </main>`;
 }
 /* The feed carries the hook. Anything longer than a thumb-length gets cut at a
@@ -1391,7 +1394,7 @@ document.addEventListener("click", e => {
   if (!fn) return;
   e.preventDefault();
   try { fn(el.dataset.v, el); }
-  catch(err){ report(new ShayoError("action." + el.dataset.a, el.dataset.v || "", err), "That did not work. Try again."); }
+  catch(err){ report(new ShayoError("action." + el.dataset.a, el.dataset.v || "", err), "That did not save. Try again."); }
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && !document.getElementById("sheet").hidden){ closeSheet(); return; }

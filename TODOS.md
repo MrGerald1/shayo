@@ -1,29 +1,41 @@
 # TODOS
 
 Deferred, not forgotten. Rewritten September 2026 after the CEO review moved Shayo to an act-one
-banter product. Nothing here is in the current build. Each item says what triggers picking it up,
-because "later" is not a plan.
+banter product, and updated 13 September 2026 after sprints 1 to 3 landed. Each item says what
+triggers picking it up, because "later" is not a plan.
 
 ## Blocking, answer before launch
 
-### Web or installed app
-The premise is that people forwarded images with no app, no link and no install. Act one
-responds by asking a stranger to install something, and nobody has defended that. A card opening
-instantly in a browser matches the observed behaviour; an install asks for a commitment nobody
-in the original chain made.
-**Blocks:** the distribution plan, and therefore launch.
-**Interacts with:** the app store question below.
+### Set LIVE_URL
+One string in `shayo.html`. Until it is set the app shows a red banner and every card leaves
+without a way back. This is the single thing standing between the build and a measurable
+forward-through rate, which is the whole premise.
+**Blocks:** launch, and every number act one exists to produce.
+**Needs from you:** the domain. Nobody has named one.
 
-### Apple and Google alcohol policies
-Both platforms have alcohol content rules and age-gating requirements. Not researched. If the
-answer is restrictive it partly decides the question above.
-**Blocks:** launch, if the answer is install.
+### Write the other four roasts per drink
+`d.roasts` takes an array and rotates on repeat lookup; `d.roast` is the one-line fallback and
+all 73 drinks are still on it. The mechanism is built and empty. 73 lines exist, 365 is the
+target, and the second time a friend orders Alomo the card is currently a repeat.
+**Blocks:** act one surviving past one evening. Not launch.
+**Nobody but you can do this.**
 
-### The first hundred users
-No plan exists that does not assume users we do not have. The share card is a loop that needs
-seeding. WhatsApp's Business API is closed to alcohol here. The only proven-reach asset is the
-original WhatsApp groups the roasts already travelled in.
-**Blocks:** launch.
+### ~~Web or installed app~~ ANSWERED: web
+See `DISTRIBUTION.md`. Apple 1.4.3 bans apps encouraging excessive alcohol consumption; Google
+bans portraying excessive drinking favourably. The 73 lines read as consequence and mockery
+rather than favourable portrayal, so a human reviewer should pass them, but both stores now run
+automated scanning where a mismatch can trigger removal rather than a review request. The
+decisive argument is simpler: an install between a forwarded card and "let me see mine" breaks
+the one loop act one exists to measure. The build ships a service worker and a manifest, so it
+installs from the browser without a store, and nothing has to be undone if you change your mind.
+
+### ~~Apple and Google alcohol policies~~ ANSWERED
+Researched, quoted and audited against all 73 roasts in `DISTRIBUTION.md`. Shayo is 18+ under
+Apple's new bands. Declared age satisfies 4.7.5, so the existing gate is sufficient.
+
+### ~~The first hundred users~~ ANSWERED
+Plan in `DISTRIBUTION.md`, including the kill rule: a hundred sent cards producing fewer than
+ten deep-link opens means forwarding is not the distribution mechanism.
 
 ### ARCON pre-vetting
 ARCON pre-vets advertising material and asserts jurisdiction over foreign advertisers. The moment
@@ -51,7 +63,7 @@ Each becomes a view over a log that will already exist.
 ### Selling to brands
 The regulatory opening is real and structural. The relationship is not: Nigerian Breweries buys
 media through agencies on annual planning cycles, and no contact or route in has been named.
-**Now:** write the boundary document. An afternoon, no counterparty needed.
+**Now:** ~~write the boundary document~~ done, see `BOUNDARY.md`.
 **Trigger for selling:** an audience floor set at launch, or a named inbound.
 **Blocked by:** ARCON pre-vetting, above.
 

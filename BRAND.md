@@ -149,7 +149,12 @@ Copy library:
 | Price warning | ₦2,500? Star is ₦1,400 around here. Ask them why. |
 | Bill dispute | 11 bottles between 8:42pm and 1:15am. Here is the list. |
 
-**Four places with no jokes at all:** money, the bill, age, safety. A total that tries to be
+**Four places with no jokes at all:** money, the bill, age, safety.
+
+> **Contradiction, noted 13 September 2026 and not resolved.** The copy library's own 18+ line,
+> "abeg go and drink Chapman," is a joke, on a surface this paragraph says carries none. The
+> build uses the library line, because the library is the source of truth and one of the two
+> has to give. Decide which: either the line changes, or age comes off this list. A total that tries to be
 funny is a total nobody trusts, and the tab exists to be trusted at 1am. Never scold about
 spend: show the number and stop. Money type is display weight, tabular figures, naira sign
 always, never abbreviated on the ledger. Crate Red means the bar overcharged, never that you

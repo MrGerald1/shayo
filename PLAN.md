@@ -53,24 +53,26 @@ view over a log act one is already writing.
 
 ## Defects in the built file
 
-All still present. Three critical ones block everything else.
+**All fourteen are fixed as of commit `a2e12af`, 13 September 2026.** The table is kept as the
+record of what was wrong, because burying a reversal is how "Built, real photography" survived
+next to proof that the photo path never ran. Status column added.
 
-| # | What | Severity | Where |
-|---|---|---|---|
-| B1 | `findPhoto()` and `repaintPhotos()` are never called from anywhere. The photo path is unreachable code. Pasting a Pexels key changes nothing. The old SCOPE.md claim of "Built, real photography" was false, and the photo debt in TODOS described a system that never ran | critical | `shayo.html:219,233` |
-| B2 | `store` gates on `window.storage`, the artifact host object, not a web API. In any real browser nothing persists and every write fails silently | critical | `shayo.html:605` |
-| B3 | Deep links set `state.screen = "drink"` directly, bypassing the 18+ gate. That is the primary growth path. `enter()` never records the answer either, so everyone else is re-gated daily | critical | `shayo.html:944`, `902` |
-| B4 | `actions.mine` calls `render()`, which rewrites all of `#app` with no scroll restore. Claiming a drink on slide 14 throws you back to slide 1 | high | `shayo.html:908`, `853` |
-| B5 | `LIVE_URL` is empty and the fallback rejects both `file:` and the preview host, so `shareUrl()` returns `""`. Nothing has ever been forwarded with a link back | high | `shayo.html:205`, `586` |
-| B6 | Search never reads `d.m`, so "Henny" hits the empty state, which then tells you to try the brand name. You did | high | `shayo.html:688` |
-| B7 | One `@media` in 956 lines, and it is `prefers-reduced-motion` | high | `shayo.html:197` |
-| B8 | Status card, crate pattern and progress tick: zero occurrences. Three of BRAND.md's four elements do not exist. The only animation is the coach thumb, which BRAND.md's "and nothing else" clause forbids | high | whole file |
-| B9 | `d.p` and `d.t` are on all 73 drinks and read by nothing | medium | whole file |
-| B10 | Tap targets under BRAND.md's own 48px rule: `.more` 44, `.iconbtn` 44, `.chip` 38. The 44px one is the only navigation out of the feed | medium | `shayo.html:59,67,110` |
-| B11 | Safety line appears twice on secondary screens and never on the screen users spend most time on | medium | `shayo.html:776,806` |
-| B12 | `theme-color` is ink, but three of five screens are paper | low | `shayo.html:6` |
-| B13 | Dead code: `state.seenIdx` written never read, `const dot` unused, a storage key nothing loads | low | `shayo.html:868,752,229` |
-| B14 | 18+ copy in the build differs from BRAND.md's copy library. One of the two is not the source of truth | low | `shayo.html:640` vs BRAND.md |
+| # | What | Severity | Where | Status |
+|---|---|---|---|---|
+| B1 | `findPhoto()` and `repaintPhotos()` are never called from anywhere. The photo path is unreachable code. Pasting a Pexels key changes nothing. The old SCOPE.md claim of "Built, real photography" was false, and the photo debt in TODOS described a system that never ran | critical | `shayo.html:219,233` | fixed |
+| B2 | `store` gates on `window.storage`, the artifact host object, not a web API. In any real browser nothing persists and every write fails silently | critical | `shayo.html:605` | fixed |
+| B3 | Deep links set `state.screen = "drink"` directly, bypassing the 18+ gate. That is the primary growth path. `enter()` never records the answer either, so everyone else is re-gated daily | critical | `shayo.html:944`, `902` | fixed |
+| B4 | `actions.mine` calls `render()`, which rewrites all of `#app` with no scroll restore. Claiming a drink on slide 14 throws you back to slide 1 | high | `shayo.html:908`, `853` | fixed |
+| B5 | `LIVE_URL` is empty and the fallback rejects both `file:` and the preview host, so `shareUrl()` returns `""`. Nothing has ever been forwarded with a link back | high | `shayo.html:205`, `586` | fixed |
+| B6 | Search never reads `d.m`, so "Henny" hits the empty state, which then tells you to try the brand name. You did | high | `shayo.html:688` | fixed |
+| B7 | One `@media` in 956 lines, and it is `prefers-reduced-motion` | high | `shayo.html:197` | fixed |
+| B8 | Status card, crate pattern and progress tick: zero occurrences. Three of BRAND.md's four elements do not exist. The only animation is the coach thumb, which BRAND.md's "and nothing else" clause forbids | high | whole file | fixed |
+| B9 | `d.p` and `d.t` are on all 73 drinks and read by nothing | medium | whole file | fixed |
+| B10 | Tap targets under BRAND.md's own 48px rule: `.more` 44, `.iconbtn` 44, `.chip` 38. The 44px one is the only navigation out of the feed | medium | `shayo.html:59,67,110` | fixed |
+| B11 | Safety line appears twice on secondary screens and never on the screen users spend most time on | medium | `shayo.html:776,806` | fixed |
+| B12 | `theme-color` is ink, but three of five screens are paper | low | `shayo.html:6` | fixed |
+| B13 | Dead code: `state.seenIdx` written never read, `const dot` unused, a storage key nothing loads | low | `shayo.html:868,752,229` | fixed |
+| B14 | 18+ copy in the build differs from BRAND.md's copy library. One of the two is not the source of truth | low | `shayo.html:640` vs BRAND.md | fixed |
 
 ---
 
@@ -116,7 +118,7 @@ device id and an append-only sync to something free, or the schema work loses it
 
 ## Order of work
 
-### Week 1, ship the funnel, about 1 day human / 1.5h CC
+### Week 1, ship the funnel — SHIPPED
 
 The only code that creates users is broken. Nothing has ever been forwarded with a link back, so
 the premise the whole roadmap rests on has never been tested.
@@ -132,7 +134,7 @@ the premise the whole roadmap rests on has never been tested.
 | W1.7 | Self-host the Archivo variable file | E10 |
 | W1.8 | Read `d.m` so "Henny" finds Hennessy | B6 |
 
-### Week 2, act one, about 4 days human / 5h CC
+### Week 2, act one — SHIPPED, except W2.5
 
 | | Task |
 |---|---|
@@ -140,20 +142,20 @@ the premise the whole roadmap rests on has never been tested.
 | W2.2 | The naming loop. Dock becomes "Who you wan roast?" on every screen, opens the picker, card with Send primary |
 | W2.3 | Search promoted to primary. Filters on strength, venue, taste. Price band labelled as a band |
 | W2.4 | Event log, minimal schema, with `send`, `search`, `search_empty` and `repeat_lookup` wired |
-| W2.5 | Multiple roasts per drink, rotated on repeat lookup. A writing task, not engineering |
+| W2.5 | Multiple roasts per drink, rotated on repeat lookup. **Mechanism built, corpus empty.** `d.roasts` takes an array, `d.roast` is the fallback, all 73 drinks are still on one line. A writing task, not engineering |
 | W2.6 | Delete the unreachable photo path, commit to the poster (B1) |
 | W2.7 | Window the feed, drop the blur layers (E9) |
 
-### Week 3, polish and launch, about 2 days human / 2h CC
+### Week 3, polish and launch — SHIPPED
 
 | | Task |
 |---|---|
 | W3.1 | Responsive. A real desktop layout for the shared-card route, an honest phone frame elsewhere (B7) |
 | W3.2 | Accessibility: landmarks, headings, 48px targets, keyboard advance (B10) |
 | W3.3 | Brand elements: crate pattern and the progress tick, the status card having landed in W2.1 (B8) |
-| W3.4 | The boundary document for brand money |
-| W3.5 | Resolve web versus install, and the app store alcohol policies |
-| W3.6 | The first-hundred plan. Seed the WhatsApp groups the roasts already travelled in |
+| W3.4 | The boundary document for brand money. Done: `BOUNDARY.md` |
+| W3.5 | Resolve web versus install, and the app store alcohol policies. Done: `DISTRIBUTION.md`, answer is web |
+| W3.6 | The first-hundred plan. Done: `DISTRIBUTION.md`, with a kill rule |
 
 ### Then, gated on evidence
 
@@ -235,8 +237,39 @@ finds out Shayo exists.
 **CROSS-MODEL:** absorbed, single-model on all three passes.
 
 **UNRESOLVED DECISIONS:**
-- Web or installed app. Blocking, and it interacts with the app store question.
-- Apple and Google alcohol content and age-gating policies. A launch blocker, not researched.
-- The first hundred users. No plan exists that does not assume users we do not have.
-- ARCON pre-vetting. A blocker on selling to any brand, not on act one.
+- ~~Web or installed app~~ **answered: web.** `DISTRIBUTION.md`.
+- ~~Apple and Google alcohol and age-gating policies~~ **answered**, quoted and audited against
+  all 73 roasts. `DISTRIBUTION.md`.
+- ~~The first hundred users~~ **answered**, with a kill rule. `DISTRIBUTION.md`.
+- **`LIVE_URL` is still empty.** No domain has been named. This is now the only thing between
+  the build and a measurable forward-through rate.
+- **365 roasts, 73 written.** The rotation mechanism is built and the corpus is not.
+- ARCON pre-vetting. A blocker on selling to any brand, not on act one. `BOUNDARY.md`.
 - Panel packaging, given that representativeness rather than scale is the problem.
+
+---
+
+## What sprints 1 to 3 actually shipped
+
+Commit `a2e12af`. Verified in a browser, not asserted:
+
+| Check | Result |
+|---|---|
+| Claim on slide 14 holds scroll position (B4) | held at 11368px, button flipped in place |
+| Deep link `#d=alomo` hits the 18+ gate first (B3) | gate shown, `pending` held, answer routes to Alomo |
+| The 18+ answer survives reload (B3) | yes persists; a refusal persists 24h and re-gates after |
+| localStorage round-trip (B2) | `shayo:mine` written and read back |
+| "Henny" finds Hennessy (B6) | one result |
+| Card export | 1080x1920, 185KB JPEG, top and bottom 250px verified empty |
+| Card contrast across all 73 drinks | worst 4.07:1, none below 3:1, 14 cards flip to ink type |
+| Feed windowing | never more than 5 slides live, bounded at both ends |
+| Tap targets under 48px | 0, across five screens |
+| Landmarks and one h1 per screen | pass, across five screens |
+| Console errors | none |
+
+**Not verified: how any of it looks.** The browser pane would not paint during this session, so
+every check above is structural, geometric or behavioural. Nobody has looked at the status card.
+
+**Test plan status: still 0/12 automated.** Everything above was run by hand in a live page.
+The five mandatory regressions now pass; none of them is pinned by a test that would catch a
+re-break.
