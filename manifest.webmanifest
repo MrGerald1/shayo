@@ -1,0 +1,14 @@
+{
+  "name": "Shayo",
+  "short_name": "Shayo",
+  "description": "73 Nigerian drinks, roasted. Find your guy's drink, send him the line.",
+  "start_url": "./shayo.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16120F",
+  "theme_color": "#16120F",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
