@@ -52,21 +52,23 @@ a{color:inherit;text-decoration:none}
   transform:rotate(-6deg);text-align:center;max-width:100%}
 .veil{position:absolute;inset:0;z-index:1;
   background:linear-gradient(180deg,rgba(22,18,15,.62) 0%,rgba(22,18,15,.18) 26%,rgba(22,18,15,.55) 52%,rgba(22,18,15,.93) 82%,rgba(22,18,15,.97) 100%)}
-.slidebody{position:relative;z-index:2;padding:0 var(--m) calc(174px + env(safe-area-inset-bottom));
-  display:flex;flex-direction:column;gap:13px;min-height:52dvh;justify-content:flex-end}
+.slidebody{position:relative;z-index:2;padding:0 var(--m) calc(94px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;justify-content:flex-end}
+.rcard{background:rgba(22,18,15,.72);border-radius:var(--rs);padding:16px 17px 15px;
+  display:flex;flex-direction:column;gap:9px;max-width:420px}
 .cat{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;font-size:11px;
   font-weight:700;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
 .cat i{width:6px;height:6px;border-radius:99px;background:var(--yellow)}
-.dname{font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.75;margin:0}
-.roast{font-size:clamp(21px,5.6vw,26px);line-height:1.28;font-weight:600;margin:0;white-space:pre-line;
-  text-wrap:pretty;max-width:22ch}
+.dname{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.8;margin:0}
+.roast{font-size:clamp(17px,4.4vw,20px);line-height:1.34;font-weight:600;margin:0;white-space:pre-line;
+  text-wrap:pretty}
 .slideact{display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap}
-.act{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:99px;
-  background:var(--scrim-1);font-size:15px;font-weight:700}
+.act{display:inline-flex;align-items:center;gap:7px;min-height:48px;padding:0 16px;border-radius:99px;
+  background:var(--scrim-1);font-size:14px;font-weight:700}
 .act.on{background:var(--yellow);color:var(--ink)}
 .act.share{background:var(--paper);color:var(--ink)}
 .act svg{width:18px;height:18px}
-.more{align-self:flex-start;font-size:14px;font-weight:600;opacity:.82;text-decoration:underline;
+.more{align-self:flex-start;font-size:13.5px;font-weight:600;opacity:.85;text-decoration:underline;
   text-underline-offset:4px;min-height:48px;display:flex;align-items:center;text-align:left}
 .safety{font-size:12px;font-weight:600;opacity:.62;margin:2px 0 0;letter-spacing:.01em}
 
@@ -75,6 +77,9 @@ a{color:inherit;text-decoration:none}
   background:linear-gradient(180deg,rgba(22,18,15,.62),transparent)}
 .brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:900;letter-spacing:-.045em;min-height:48px}
 .brand svg{width:22px;height:22px}
+.findbtn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border-radius:99px;
+  background:var(--scrim-1);font-size:14px;font-weight:700}
+.findbtn svg{width:18px;height:18px}
 .iconbtn{width:48px;height:48px;border-radius:99px;display:grid;place-items:center;background:var(--scrim-1)}
 .iconbtn svg{width:20px;height:20px}
 .iconbtn.solid{background:var(--card);color:var(--ink)}
@@ -197,7 +202,9 @@ h1{font-size:31px;line-height:33px;font-weight:800;letter-spacing:-.03em;margin:
 .statuswrap>*{position:relative;z-index:1}
 .ticks{display:flex;gap:7px;margin-bottom:7%}
 .ticks i{width:30px;height:6px;border-radius:99px;overflow:hidden;position:relative}
+.ticks i{flex:1;max-width:52px}
 .ticks i::before{content:"";position:absolute;inset:0;border-radius:99px;background:currentColor;opacity:.34}
+.ticks i.done::before{opacity:1}
 .ticks i.on::after{content:"";position:absolute;inset:0;background:currentColor;transform-origin:left;
   animation:tick var(--tick,8s) linear forwards}
 @keyframes tick{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -800,14 +807,14 @@ const CATS = ["Beer","Stout","Bitters","Cognac","Whisky","Vodka","Gin","Rum","Te
 const OPENERS = ["alomo","vodka","red_wine","radler","heineken","gulder","champagne","orijin","legend","jameson","hennessy","four_cousins","star","palmwine","shots","smirnoff_ice","black_label","trophy","guinness","chapman"];
 
 const VERDICT = {
-  g:{label:"Oya go", cls:"v-g"}, s:{label:"Small small", cls:"v-s"},
-  n:{label:"You never reach", cls:"v-n"}, b:{label:"You don pass am", cls:"v-b"}
+  g:{label:"Go ahead", cls:"v-g"}, s:{label:"Take it slow", cls:"v-s"},
+  n:{label:"Not yet", cls:"v-n"}, b:{label:"Below your level", cls:"v-b"}
 };
 const NOTE = {
-  g:["You fit drink this one.","Within range. Drink like somebody that has work tomorrow.","Light work. Show the young ones how to pace.","You can do this with your eyes closed.","Easy. Pace like an elder."],
+  g:["You can drink this one.","Within range. Drink like somebody that has work tomorrow.","Light work. Show the young ones how to pace.","You can do this with your eyes closed.","Easy. Pace like an elder."],
   s:["One glass, then water.","You can manage it. Decide your number before, not after.","Manageable. Tomorrow you remembers last time.","Fine, but nobody should see you doing shots of this.","Your liver has submitted a complaint."],
-  n:["You never reach. This one will send you home in somebody aso ebi.","Wait small. Your friends cannot carry you yet.","Only with food, friends, and a ride already booked.","Even you, calm down. Small glass, long night.","Even ancestors have ancestors."],
-  b:["Go ahead. Everybody starts somewhere.","You don pass this level. Your first bottle is proud of you.","You don pass am. Drink it if somebody else paid.","Na pikin drink. People will ask if everything is okay.","This one is for the corper table."]
+  n:["Not yet. This one will send you home in somebody else's aso ebi.","Wait small. Your friends cannot carry you yet.","Only with food, friends, and a ride already booked.","Even you, calm down. Small glass, long night.","Even ancestors have ancestors."],
+  b:["Go ahead. Everybody starts somewhere.","You are past this level. Your first bottle is proud of you.","Below your level. Drink it if somebody else paid.","A child's drink. People will ask if everything is okay.","This one is for the corper table."]
 };
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -957,7 +964,7 @@ function vUnder(){
 /* The feed carries the hook. Anything longer than a thumb-length gets cut at a
    sentence and finished on the drink page, which is also what makes people tap. */
 function hook(body, limit){
-  if (!limit) limit = (typeof window !== "undefined" && window.innerHeight < 700) ? 150 : 200;
+  if (!limit) limit = (typeof window !== "undefined" && window.innerHeight < 700) ? 118 : 150;
   if (body.length <= limit) return {text:body, cut:false};
   let out = "";
   for (const part of body.split(/(?<=[.!?])\s+/)){
@@ -971,13 +978,15 @@ function slideInner(id){
   const h = hook(body);
   return `${shot(d)}<div class="veil"></div>
     <div class="slidebody">
-      <span class="cat"><i></i>${esc(d.cat)}</span>
-      <h2 class="dname">${esc(head ? head.replace(/[.!]$/, "") : d.name)}</h2>
-      <p class="roast">${esc(h.text)}</p>
-      <button class="more" data-a="open" data-v="${id}">${h.cut ? "Read the rest" : "Can I handle it, and how to drink am"}</button>
-      <div class="slideact">
-        <button class="act${mine ? " on" : ""}" data-a="mine" data-v="${id}" aria-pressed="${!!mine}">${svg("hand")}<span>${mine ? "Na you" : "Na me"}</span></button>
-        <button class="act share" data-a="share" data-v="${id}">${svg("share")}Send to somebody</button>
+      <div class="rcard">
+        <span class="cat"><i></i>${esc(d.cat)}</span>
+        <h2 class="dname">${esc(head ? head.replace(/[.!]$/, "") : d.name)}</h2>
+        <p class="roast">${esc(h.text)}</p>
+        <button class="more" data-a="open" data-v="${id}">${h.cut ? "Read the rest" : "Can you handle it, and how to drink it"}</button>
+        <div class="slideact">
+          <button class="act${mine ? " on" : ""}" data-a="mine" data-v="${id}" aria-pressed="${!!mine}">${svg("hand")}<span>${mine ? "This is mine" : "I drink this"}</span></button>
+          <button class="act share" data-a="share" data-v="${id}">${svg("share")}Send</button>
+        </div>
       </div>
       <p class="safety">${esc(SAFETY)}</p>
     </div>`;
@@ -1019,21 +1028,14 @@ function navbar(active){
     `<button class="navitem${t.id === active ? " on" : ""}" data-a="nav" data-v="${t.id}"
        aria-current="${t.id === active ? "page" : "false"}">${svg(t.icon, 1.9)}<span>${t.label}</span></button>`).join("")}</nav>`;
 }
-function dock(light){
-  return `<nav class="dock${light ? " onlight" : ""}" aria-label="Primary">
-    <button class="primary" data-a="browse">${svg("search")}Who you wan roast?</button>
-    <button class="square" data-a="ask" aria-label="Wetin I go drink tonight">${svg("martini")}</button>
-  </nav>`;
-}
 function vFeed(){
   return `<div class="screen">
     <header class="topbar">
       <span class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="${YELLOW}" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">${ICON.cork}</svg>${BRAND}</span>
-      <button class="iconbtn" data-a="browse" aria-label="Find a drink">${svg("search")}</button>
+      <button class="findbtn" data-a="browse">${svg("search")}Find a drink</button>
     </header>
     <h1 class="sr">Roasts</h1>
     <main class="feed" id="feed" tabindex="-1">${state.order.map(slideShell).join("")}</main>
-    ${dock(false)}
     ${navbar("feed")}
     ${state.coach ? "" : `<button class="coach" data-a="gotit"><div>
       <div class="thumb"><i></i></div>
@@ -1076,7 +1078,7 @@ function rowHTML(d){
 function gridHTML(){
   const list = matches();
   if (!list.length){
-    return `<div class="empty"><b>We never roast that one yet.</b>
+    return `<div class="empty"><b>We have not roasted that one yet.</b>
       <p>${state.q ? `Nothing matches &ldquo;${esc(state.q)}&rdquo;.` : "Nothing matches those filters."}
       Try the brand name on the bottle, like Gulder, or drop a filter.</p>
       ${anyFilter() ? `<button class="btn quiet" data-a="clearf">Clear filters</button>` : ""}</div>`;
@@ -1093,7 +1095,8 @@ function frow(label, key, opts){
 }
 function vBrowse(){
   return `<div class="screen light"><main class="pad">
-    <header class="head"><button class="iconbtn" data-a="${state.logging ? "tab" : "feed"}" aria-label="Back">${svg("back")}</button><h1>${state.logging ? "Wetin you dey drink?" : "Who you wan roast?"}</h1></header>
+    <header class="head"><button class="iconbtn" data-a="${state.logging ? "tab" : "feed"}" aria-label="Back">${svg("back")}</button>
+      <h1>${state.logging ? "What are you drinking?" : "Find a drink"}</h1></header>
     <div class="search">${svg("search", 1.9)}<input id="q" type="search" placeholder="Star, Henny, ogogoro" value="${esc(state.q)}" autocomplete="off" autocapitalize="off" aria-label="Search a bottle"></div>
     <div class="filters">
       <button class="chip fbtn${anyFilter() ? " on" : ""}" data-a="fopen" aria-expanded="${!!state.fopen}">${svg("filter", 2)}Filters${anyFilter() ? `<span class="n">${activeCount()}</span>` : ""}</button>
@@ -1103,7 +1106,7 @@ function vBrowse(){
     </div>
     <div class="chips">${["All"].concat(CATS).map(c => `<button class="chip${state.cat === c ? " on" : ""}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
     <div id="grid">${gridHTML()}</div>
-  </main></div>`;
+  </main>${navbar(state.logging ? "tab" : "feed")}</div>`;
 }
 
 /* Experience does not transfer across a shelf. Ten years of Star tells us nothing
@@ -1137,7 +1140,7 @@ function toleranceBlock(d){
   const t = tolerance(d), f = fam(d);
   if (t.state === "unknown")
     return `<section><h3>Can you handle it?</h3>
-      <p>We cannot say yet. Tap <strong>Na me</strong> on one drink you actually order and we go know your level on this shelf.</p></section>`;
+      <p>We cannot say yet. Tap <strong>I drink this</strong> on one drink you actually order and we will know your level on this shelf.</p></section>`;
   if (t.state === "new")
     return `<section><h3>Can you handle it?</h3>
       <p><span class="pill v-s">New shelf</span><br>You have never claimed anything from ${esc(f.toLowerCase())}.
@@ -1148,8 +1151,8 @@ function toleranceBlock(d){
           : step === 1 ? {c:"v-s", l:"One step up"} : step === 2 ? {c:"v-s", l:"Two steps up"}
           : {c:"v-n", l:step + " steps up"};
   const line = step <= -2 ? `You already handle ${esc(t.top.name)}. This one is small for you.`
-    : step <= 0 ? `Same level as the ${esc(t.top.name)} you claimed. You fit drink am.`
-    : step === 1 ? `One step above your ${esc(t.top.name)}. You go feel am, but you go dey alright.`
+    : step <= 0 ? `Same level as the ${esc(t.top.name)} you claimed. You can drink it.`
+    : step === 1 ? `One step above your ${esc(t.top.name)}. You will feel it, but you will be fine.`
     : step === 2 ? `Two steps above your ${esc(t.top.name)}. Eat first, then count your glasses.`
     : `${step} steps above your ${esc(t.top.name)}. Not tonight, unless somebody is driving you home.`;
   return `<section><h3>Can you handle it? On ${esc(f.toLowerCase())}</h3>
@@ -1174,7 +1177,7 @@ function vDrink(){
     <p class="cardcap col2">This is the card they get.</p>
     <div class="row2 col2">
       <button class="btn" data-a="share" data-v="${d.id}">${svg("share")}Send</button>
-      <button class="btn quiet" data-a="mine" data-v="${d.id}">${svg("hand")}<span>${state.mine[d.id] ? "Na you" : "Na me"}</span></button>
+      <button class="btn quiet" data-a="mine" data-v="${d.id}">${svg("hand")}<span>${state.mine[d.id] ? "Yours" : "I drink this"}</span></button>
     </div>
     <button class="btn dark col2" data-a="addtonight" data-v="${d.id}">${svg("plus")}Add to tonight${tonightCount(d.id) ? ` &middot; ${tonightCount(d.id)} so far` : ""}</button>
     <div class="block col2">
@@ -1182,13 +1185,13 @@ function vDrink(){
       <section><h3>Who else drinks it</h3><p>${esc(d.who)}</p></section>
       <section><h3>Price</h3><p>${esc(PRICE_BANDS[d.p] || "Unbanded")}. A band, not a price: what it costs depends on the bar, the area and the night.</p></section>
       ${toleranceBlock(d)}
-      <section><h3>How to drink am</h3><p>${esc(d.fix)}</p></section>
+      <section><h3>How to drink it</h3><p>${esc(d.fix)}</p></section>
     </div>
     ${wide ? `<button class="btn quiet col2" data-a="enterfeed">See what your own drink says</button>` : ""}
     ${shelf.length ? `<h3 class="eyebrow col2" style="margin:26px 0 10px">Same shelf: ${esc(d.cat.toLowerCase())}</h3>
       <div class="shelf col2">${shelf.map(x => `<button class="pcard" data-a="open" data-v="${x.id}">${shot(x, "", "small")}<div class="veil"></div><span><b>${esc(shortName(x))}</b></span></button>`).join("")}</div>` : ""}
     <p class="foot">${esc(SAFETY)}</p>
-  </main>${wide ? "" : dock(true)}</div>`;
+  </main>${wide ? "" : navbar('feed')}</div>`;
 }
 
 /* ── the status card. One component. This markup and the canvas export below
@@ -1219,9 +1222,16 @@ function cardInk(color){ return contrast(PAPER, color) >= contrast(INK, color) ?
 
 function statusCard(d, opt){
   const t = cardText(d), secs = tickSeconds(t.line), dark = cardInk(d.color) === INK;
-  return `<div class="statuswrap${dark ? " inked" : ""}" style="background:${d.color};--tick:${secs}s">
+  /* One tick per roast this drink actually has. Three fixed ticks that filled
+     one and stopped read as a story that breaks: you wait for the next and it
+     never comes. */
+  const list = roastList(d), idx = (state.seen[d.id] || 0) % list.length;
+  const live = !!(opt && opt.live);
+  return `<div class="statuswrap${dark ? " inked" : ""}" style="background:${d.color};--tick:${secs}s"
+      data-ticks="${list.length}" data-secs="${secs}" data-drink="${d.id}">
     <div class="crate"></div>
-    <div class="ticks" aria-hidden="true"><i class="${opt && opt.live ? "on" : ""}"></i><i></i><i></i></div>
+    <div class="ticks" aria-hidden="true">${list.map((_, i) =>
+      `<i class="${i < idx ? "done" : i === idx && live ? "on" : ""}"></i>`).join("")}</div>
     <p class="stitle">${esc(t.title)}</p>
     <p class="stext">${esc(t.line)}</p>
     <div class="sfoot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">${ICON.cork}</svg>${esc(cardUrlLabel())}</div>
@@ -1335,13 +1345,13 @@ function vAsk(){
   const a = state.ask;
   if (a.result) return vAskResult();
   const q = a.step === 0
-    ? {t:"Where you dey go?", s:"The venue changes the answer more than taste does.", opts:VENUES, act:"venue"}
-    : {t:"Wetin dey tomorrow morning?", s:"This is the question nobody else asks you.", opts:MORNING, act:"tmr"};
+    ? {t:"Where are you going?", s:"The place changes the answer more than taste does.", opts:VENUES, act:"venue"}
+    : {t:"What is tomorrow morning?", s:"Tonight looks different depending on the answer.", opts:MORNING, act:"tmr"};
   return `<div class="screen light"><main class="pad">
     <header class="head"><button class="iconbtn" data-a="${a.step === 0 ? "feed" : "askback"}" aria-label="Back">${svg("back")}</button><span class="htitle">${a.step + 1} of 2</span></header>
     <h1>${q.t}</h1><p class="lede">${q.s}</p>
     <div class="ask">${q.opts.map(o => `<button class="opt" data-a="${q.act}" data-v="${o.val}"><b>${esc(o.label)}</b><em>${esc(o.sub)}</em></button>`).join("")}</div>
-  </main></div>`;
+  </main>${navbar("tab")}</div>`;
 }
 function vAskResult(){
   const {pick, why, runner, avoid} = state.ask.result, d = pick;
@@ -1352,15 +1362,15 @@ function vAskResult(){
     <div class="hero">${shot(d, "", "mid")}<div class="veil"></div><span><em>Drink this</em><h1 style="font-size:34px;line-height:35px;margin:0">${esc(d.name)}</h1></span></div>
     <div class="block">
       <section><h3>Why this one</h3><p>${esc(why)}</p></section>
-      <section><h3>How to drink am</h3><p>${esc(d.fix)}</p></section>
-      <section><h3>If dem no get am</h3><p><strong>${esc(runner.name)}.</strong> ${esc(runner.type)}.</p></section>
+      <section><h3>How to drink it</h3><p>${esc(d.fix)}</p></section>
+      <section><h3>If they do not have it</h3><p><strong>${esc(runner.name)}.</strong> ${esc(runner.type)}.</p></section>
       ${avoid ? `<section><h3>Not tonight</h3><p><strong>${esc(avoid.d.name)}.</strong> ${esc(avoid.reason)}</p></section>` : ""}
     </div>
     <a class="btn" href="${waHref(text)}" target="_blank" rel="noopener">${svg("share")}Send to the group chat</a>
     <button class="btn quiet" data-a="open" data-v="${d.id}">Read the full roast</button>
     <button class="btn quiet" data-a="ask">Ask again</button>
     <p class="foot">${esc(SAFETY)}</p>
-  </main>${dock(true)}</div>`;
+  </main>${navbar(state.screen === 'ask' ? 'tab' : 'feed')}</div>`;
 }
 
 /* ── the pick. Two answers in, one drink out. */
@@ -1396,11 +1406,11 @@ function prescribe(){
   const why = [];
   const c = pick.v[st];
   why.push(c === "g" ? `For a ${STAGES[st].name}, this one is within range.` : c === "s" ? `For a ${STAGES[st].name}, you can handle it if you are counting.` : `It is small for you, but it fits tonight.`);
-  if (pick.ven.includes(ven.code)) why.push(`It fits ${ven.label.toLowerCase()}.`);
+  if (pick.ven.includes(ven.code)) why.push(`It suits ${ven.label.toLowerCase()}.`);
   why.push(a.tmr === "early" ? "You have work by 8am, so this is your ceiling."
     : a.tmr === "service" ? "You have service in the morning. You will not sleep through the sermon."
     : a.tmr === "flex" ? "You have something by 12. You will still look human."
-    : "Nothing tomorrow. You fit try something with small power.");
+    : "Nothing tomorrow. You can try something with more power.");
   state.ask.result = {pick, runner, avoid:bad[0] || null, why:why.join(" ")};
 }
 
@@ -1570,6 +1580,7 @@ function vTab(){
     ${state.holdHint ? "" : `<p class="note">Press and hold a tile for a round for the table. Hold the number to remove one.</p>`}
 
     <button class="btn${n ? "" : " quiet"}" data-a="settle" ${n ? "" : "disabled"}>Settle the night</button>
+    <button class="btn quiet" data-a="ask">${svg("martini")}Help me choose a drink</button>
     <p class="foot">${esc(SAFETY)}</p>
   </main>${navbar("tab")}</div>`;
 }
@@ -1978,6 +1989,52 @@ function addRound(id, qty, price){
   return e;
 }
 
+
+/* ── routing. Every screen has an address. Back works, forward works, and any
+      page can be linked to. Hash routing rather than history.pushState because
+      the file has to keep running from file://, where pushState throws. */
+const PATHS = {feed:"/", browse:"/find", drink:"/drink", tab:"/tonight",
+               settle:"/bill", radar:"/prices", you:"/you", ask:"/tonight/pick"};
+const BY_PATH = Object.fromEntries(Object.entries(PATHS).map(([k, v]) => [v, k]));
+
+function pathFor(){
+  if (state.screen === "drink" && state.drink) return "/drink/" + state.drink;
+  return PATHS[state.screen] || "/";
+}
+let routing = false;
+function syncURL(){
+  const want = "#" + pathFor();
+  if (location.hash === want) return;
+  routing = true;
+  try { location.hash = want; } catch(e){ report(new ShayoError("route.sync", want, e)); }
+  setTimeout(() => { routing = false; }, 0);
+}
+/* Returns the screen a hash asks for, or null. Understands the legacy `#d=id`
+   form, because that is what every card sent before the router existed. */
+function screenFromHash(h){
+  h = (h || "").replace(/^#/, "");
+  if (!h) return {screen:"feed"};
+  if (h.startsWith("d=")) return BY[h.slice(2)] ? {screen:"drink", drink:h.slice(2)} : null;
+  const m = h.match(/^\/drink\/([A-Za-z0-9_]+)$/);
+  if (m) return BY[m[1]] ? {screen:"drink", drink:m[1]} : null;
+  const known = BY_PATH[h];
+  return known ? {screen:known} : null;
+}
+function routeFromHash(){
+  if (routing) return;
+  let want;
+  try { want = screenFromHash(decodeURIComponent(location.hash || "")); }
+  catch(e){ report(new ShayoError("route.parse", location.hash, e)); return; }
+  if (!want) return;
+  /* The gate owns every entry, including a back-button entry. */
+  if (state.screen === "gate" || state.screen === "under"){ state.pending = want.drink || null; return; }
+  if (want.screen === state.screen && (want.drink || null) === (state.screen === "drink" ? state.drink : null)) return;
+  if (want.drink) state.drink = want.drink;
+  state.screen = want.screen;
+  render();
+}
+window.addEventListener("hashchange", routeFromHash);
+
 /* ── render. Full repaint on screen change only. Two call sites used to repaint
       the whole feed for a one-button change; both now patch in place. */
 const DARK = {gate:1, under:1, feed:1};
@@ -1991,6 +2048,8 @@ function render(){
   if (state.screen === "feed") wireFeed();
   if (state.screen === "browse") wireSearch();
   if (state.screen === "radar") wireRadarSearch();
+  if (state.screen !== "gate" && state.screen !== "under") syncURL();
+  wireTicks();
 }
 function devWarn(){
   return `<div class="devwarn">LIVE_URL is empty, so every card leaves without a link back. Set it in shayo.html before you send anything.</div>`;
@@ -2028,6 +2087,21 @@ function wireRadarSearch(){
     state.rq = e.target.value;
     document.getElementById("rchips").innerHTML = radarChips(state.radarDrink);
   });
+}
+let tickT = null;
+function wireTicks(){
+  clearTimeout(tickT);
+  const el = document.querySelector(".statuswrap[data-ticks]");
+  if (!el) return;
+  const total = Number(el.dataset.ticks), secs = Number(el.dataset.secs), id = el.dataset.drink;
+  if (!(total > 1) || !BY[id]) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  tickT = setTimeout(() => {
+    if (state.screen !== "drink" || state.drink !== id) return;
+    state.seen[id] = (state.seen[id] || 0) + 1;
+    store.set("seen", state.seen);
+    render();
+  }, secs * 1000);
 }
 function wireFeed(){
   const feed = document.getElementById("feed");
@@ -2070,7 +2144,7 @@ function sheet(html){
 }
 function closeSheet(){ const s = document.getElementById("sheet"); s.hidden = true; s.innerHTML = ""; }
 
-/* Na me is the personalisation. Three of them and we name you, which sets every verdict. */
+/* "I drink this" is the personalisation. Three of them and we name you, which sets every verdict. */
 function nameThem(){
   const mine = myDrinks();
   const fams = {};
@@ -2080,10 +2154,10 @@ function nameThem(){
     .filter((f, i, a) => a.indexOf(f) === i && !fams[f]);
   state.named = true; store.set("named", 1);
   log("name", {shelf:top[0], level:top[1], claimed:mine.length});
-  sheet(`<h2>Three na me's. We have seen your shelf.</h2>
+  sheet(`<h2>Three claimed. We have seen your shelf.</h2>
     <p class="lede">Strongest thing you claim is <strong>${esc(mine.slice().sort((a, b) => b.s - a.s)[0].name)}</strong>,
     which puts you at ${top[1]} of 5 on ${esc(top[0].toLowerCase())}.
-    ${gaps.length ? "You have claimed nothing at all from " + esc(gaps.slice(0, 2).join(" or ").toLowerCase()) + ", so we go warn you there." : ""}</p>
+    ${gaps.length ? "You have claimed nothing at all from " + esc(gaps.slice(0, 2).join(" or ").toLowerCase()) + ", so we will warn you there." : ""}</p>
     <p class="lede">Every &ldquo;can you handle it&rdquo; in here now answers to that, shelf by shelf.</p>
     <button class="btn" data-a="closesheet">Makes sense</button>`);
 }
@@ -2091,8 +2165,8 @@ function nameThem(){
 /* ── sending. The card is finished, cropped and ready, or it is not a share
       feature: anything that needs assembling does not travel. */
 async function sendCard(id){
-  const d = BY[id], link = shareUrl("d=" + d.id);
-  const text = `${d.name} drinkers, this one na una 😂\n\n${roastFor(d)}\n\nWetin your own drink talk about you?${link ? "\n" + link : ""}`;
+  const d = BY[id], link = shareUrl("/drink/" + d.id);
+  const text = `${d.name} drinkers, this one is for you 😂\n\n${roastFor(d)}\n\nWhat does your own drink say about you?${link ? "\n" + link : ""}`;
   log("send", {drink:id, roast:(state.seen[id] || 0) % roastList(d).length, link:!!link});
   if (!link) report(new ShayoError("share.nolink", "LIVE_URL unset"),
     "No link on that card. Nobody who gets it can find Shayo.");
@@ -2153,16 +2227,16 @@ const actions = {
       el.classList.toggle("on", on && el.classList.contains("act"));
       el.setAttribute("aria-pressed", String(on));
       const label = el.querySelector("span");
-      if (label) label.textContent = on ? "Na you" : "Na me";
+      if (label) label.textContent = on ? "Yours" : "I drink this";
     });
     const n = Object.values(state.mine).filter(Boolean).length;
     if (on && n === 3 && !state.named) nameThem();
-    else if (on) toast("Noted. Na you.");
+    else if (on) toast("Noted.");
   },
   share(id){ sendCard(id); },
   copy(id){
-    const d = BY[id], link = shareUrl("d=" + d.id);
-    const text = `${d.name} drinkers, this one na una 😂\n\n${roastFor(d)}\n\nWetin your own drink talk about you?${link ? "\n" + link : ""}`;
+    const d = BY[id], link = shareUrl("/drink/" + d.id);
+    const text = `${d.name} drinkers, this one is for you 😂\n\n${roastFor(d)}\n\nWhat does your own drink say about you?${link ? "\n" + link : ""}`;
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(
       () => toast("Copied. Go and expose somebody."),
       e => report(new ShayoError("copy", id, e), "Could not copy. Select the words by hand."));
@@ -2429,10 +2503,10 @@ function boot(){
   if (store.get("holdHint")) state.holdHint = true;
   state.night = nightKey();
 
-  try {
-    const h = decodeURIComponent((location.hash || "").slice(1));
-    if (h.startsWith("d=") && BY[h.slice(2)]) state.pending = h.slice(2);
-  } catch(e){ report(new ShayoError("boot.hash", location.hash, e)); }
+  let want = null;
+  try { want = screenFromHash(decodeURIComponent(location.hash || "")); }
+  catch(e){ report(new ShayoError("boot.hash", location.hash, e)); }
+  if (want && want.drink) state.pending = want.drink;
 
   /* The gate is the entry, including the deep-link entry. Somebody forwarded a
      roast into a group chat; we do not know who opened it. */
@@ -2443,6 +2517,7 @@ function boot(){
   else if (adult && adult.ok){
     if (state.pending){ state.entry = "link"; state.coach = true; state.drink = state.pending; state.pending = null;
       state.seen[state.drink] = (state.seen[state.drink] || 0) + 1; state.screen = "drink"; state.from = "feed"; }
+    else if (want && want.screen && want.screen !== "drink") state.screen = want.screen;
     else state.screen = "feed";
   } else state.screen = "gate";
   render();
