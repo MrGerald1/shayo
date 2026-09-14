@@ -36,7 +36,10 @@ Inside a tab, states are **segmented sub-tabs**, not new screens. Tonight is
 | Settle the bill | Tonight → The bill | 1 |
 | Send the bill to the group | Tonight → The bill → Send the bill | 2 |
 | Am I being overcharged | enter the price, the verdict comes back unasked | 0 |
-| Check a price before ordering | Prices → search the drink | 2 |
+| Check a price before ordering | Prices → Drinks → search | 3 |
+| See which bars take me | Prices | 1 |
+| See what a bar charges | Prices → tap the place | 2 |
+| Log a drink I had at that bar | Prices → tap the place → + on the row | 3 |
 | Report a price | Prices → drink → Add yours | 3 |
 | See my month | You | 1 |
 | Mark a night with no drinks | You → tap the night → Mark no drinks | 2 |
@@ -67,6 +70,21 @@ receipt still shows what changed and when.
 **The radar and the shelf had no entry point.** They are tabs.
 
 ---
+
+## Places
+
+Prices has two segments: **Places** and **Drinks**. Places is a map of the bars
+you have priced: one hotspot per bar, sized by how many prices you have there,
+coloured by whether it charges you over your usual. Tap one for the drinks priced
+there, each with its price and a verdict, and a **+** to log it.
+
+**It is not a tiled geographic map.** Tiles need network and a geocoder, and
+offline-first is a hard constraint in `SCOPE.md`, so there is no basemap to fall
+back on in a basement bar with no signal. What the Snapchat map actually gives you
+is hotspots you tap into, and that part is here in full. A real basemap is a
+decision with a cost: a tile provider, a geocoder, a network dependency on a
+screen that currently works offline, and an address for every bar somebody types
+in. Worth doing when there are enough bars per user for geography to beat a list.
 
 ## Discoverability rules, going forward
 
