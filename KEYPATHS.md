@@ -60,8 +60,12 @@ Adding from the list does not leave the list.
 
 **There was no way to reduce the bill.** Press and hold on a badge was the only
 way, which is invisible. Every row in tonight's list now has − and + and the list
-is open by default. A decrement writes a void and a replacement round, so the
-receipt still shows what changed and when.
+is open by default.
+
+**Changing a count does not add a line.** The log still records the change, which
+is what lets the receipt prove a round was cancelled at 11:42pm, but +1 and −1 are
+the same item at a new count rather than two more items, so the view folds the
+chain into one row. One to four to two to zero is one line throughout.
 
 **The bill icon meant nothing.** It is a labelled segment inside Tonight now.
 
@@ -118,26 +122,38 @@ number. 9.1 is useless until it sits in your own ranked list.
 So Shayo never shows a price without a frame, and the frames run **personal
 first**:
 
-| Frame | Needs | Says |
+| Frame | Needs | Reads as |
 |---|---|---|
-| This bar, before | 1 of your own figures | "₦1,400 is what you paid here before" |
-| You, anywhere | 1 of your own figures | "₦1,400 is what you usually pay" |
-| The area | 5 people | "₦1,400 is what people pay around here" |
+| This bar, before | 1 of your own prices | `here` |
+| You, anywhere | 1 of your own prices | `your usual` |
+| The area | 5 people | `the local price` |
 
 **This answers from your first report.** A crowd median needs five strangers,
 which is the cold start that kills Numbeo and that `DESIGN.md` already names as
 the thing to avoid. Your own history needs one person.
 
-Four verdicts, and the screen always says which frame it used and how thin it is:
+Four verdicts, each with a bare comparison and never a sentence:
 
-- **Cheaper than usual** (15% or more under)
-- **Normal** (within 15%)
-- **They added something** (15 to 40% over)
-- **They saw you coming** (40%+ over)
+| Verdict | When | Reads as |
+|---|---|---|
+| **Good price** | 15% or more under | `28% under your usual` |
+| **Normal** | within 15% | `your usual ₦1,400` |
+| **Steep** | 15 to 40% over | `28% over here` |
+| **Way over** | 40%+ over | `79% over your usual` |
 
 Crate Red is reserved for the top band, which is the bar overcharging you. It is
 never used for how much you drank. That rule was already in `BRAND.md`.
 
-The first time you price a drink there is no frame, and the screen says so rather
-than inventing confidence: "First time you are pricing Star. From the next one we
-can tell you if a bar is taking you."
+The first time you price a drink there is no frame, and the screen says **"No
+history yet"** rather than inventing confidence. It does not explain why.
+
+## How numbers are written
+
+Beli never explains a number, it labels it: **9.1** with **2k** underneath. Shayo
+does the same.
+
+- **Figure, then unit, then nothing.** `₦1,400` over `You · 3 prices`.
+- **Counts are bare.** `1 of 5 prices`, not "1 person has reported Hero here."
+- **No sentence teaches the feature.** If the copy explains how the product works
+  rather than what the number is, cut it.
+- **Toasts are labels.** `Star ×3`, `Removed`, `Copied`.
